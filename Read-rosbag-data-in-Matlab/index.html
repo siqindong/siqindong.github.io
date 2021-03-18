@@ -26,7 +26,7 @@
 <meta property="og:description" content="最近在用Sawyer机器人做实验，用rosbag记录了机器人状态数据，后续要进行可视化和分析，虽然ROS内置rqt_plot有绘图功能，但是rqt_plot的功能比较简单，数据量大的时候查看起来也比较麻烦，还是导入进Matlab分析更好一些。 Matlab可以直接读取rosbag数据，对于ROS自带的topic信息，比如&#x2F;joint_states和&#x2F;cmd_vel，用Matlab读取很方便。但是对">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-03-17T01:09:58.000Z">
-<meta property="article:modified_time" content="2021-03-17T03:58:15.763Z">
+<meta property="article:modified_time" content="2021-03-18T04:38:05.412Z">
 <meta property="article:author" content="Siqin Dong">
 <meta name="twitter:card" content="summary">
   <!-- Canonical links -->
@@ -315,7 +315,7 @@
   <div class="slimContent">
     <nav id="toc" class="article-toc">
       <h3 class="toc-title">Catalogue</h3>
-      
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Cmake%E7%89%88%E6%9C%AC%E9%97%AE%E9%A2%98"><span class="toc-number">1.</span> <span class="toc-text">1.Cmake版本问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Cmake%E8%B7%AF%E5%BE%84%E9%97%AE%E9%A2%98"><span class="toc-number">2.</span> <span class="toc-text">2.Cmake路径问题</span></a></li></ol>
     </nav>
   </div>
 </aside>
@@ -348,8 +348,8 @@
 <span class="article-date">
     <i class="icon icon-calendar-check"></i>
     <a href="/Read-rosbag-data-in-Matlab/" class="article-date">
-        Edited on<time datetime="2021-03-17T03:58:15.763Z" itemprop="dateUpdated">
-            03-16-2021
+        Edited on<time datetime="2021-03-18T04:38:05.412Z" itemprop="dateUpdated">
+            03-18-2021
         </time>
     </a>
 </span>
@@ -369,10 +369,10 @@
         <span class="post-comment"><i class="icon icon-comment"></i> <a href="/Read-rosbag-data-in-Matlab/#comments" class="article-comment-link">Comments</a></span>
         
 	
-		<span class="post-wordcount hidden-xs" itemprop="wordCount">Words : 678</span>
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">Words : 946</span>
 	
 	
-		<span class="post-readcount hidden-xs" itemprop="timeRequired">Reading time ≈ 2 mins</span>
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">Reading time ≈ 3 mins</span>
 	
 
       </div>
@@ -380,19 +380,20 @@
     <div class="article-entry marked-body" itemprop="articleBody">
       
         <p>最近在用Sawyer机器人做实验，用rosbag记录了机器人状态数据，后续要进行可视化和分析，虽然ROS内置rqt_plot有绘图功能，但是rqt_plot的功能比较简单，数据量大的时候查看起来也比较麻烦，还是导入进Matlab分析更好一些。</p>
-<p>Matlab可以直接读取rosbag数据，对于ROS自带的topic信息，比如/joint_states和/cmd_vel，用Matlab读取很方便。但是对于使用了自定义的message类型的topic，需要重新编译存放msg文件的ROS package，这一步骤在Matlab中使用rosgenmsg命令完成，借助Matlab的java接口，Matlab就能识别自定义的message了。</p>
-<p>我的Matlab版本是R2021a，需要注意的是在R2020b版本中Matlab对ROS功能的支持做了很大改动，rosgenmsg 直接包含在了toolbox中（不需要额外的support package)，网上有的教程写需要通过roboticsAddons命令安装插件，应该用的是R2020b之前的Matlab版本。以后可以直接看这份Matlab官方文档：<a target="_blank" rel="noopener" href="https://www.mathworks.com/help/ros/ug/ros-custom-message-support.html">https://www.mathworks.com/help/ros/ug/ros-custom-message-support.html</a></p>
-<p>具体操作跟着上面链接的教程走就可以了，这里主要是记录一下需要注意的地方：</p>
-<p>1.cmake版本问题，cmake版本要确保在3.15.5或以上，这在Matlab官方文档<a target="_blank" rel="noopener" href="https://www.mathworks.com/help/ros/gs/ros-system-requirements.html">ROS System Requirements</a>里面写明了：</p>
-<p>检查你的cmake版本：<br></p><figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cmake --version</span><br></pre></td></tr></tbody></table></figure><p></p>
-<p>如果版本低于3.15.5，需要进行更新，最常见的问题的是你想更新cmake版本，但是你的操作系统（比如我用的Ubuntu 16.04）的repositories没有更新, 这时候如果企图在终端用sudo apt-get install cmake安装的话可能只能得到3.5.1或者其他低于要求的版本。原因是16.04是Ubuntu的长期支持（LTS）版本，要在5年内保持稳定，一般只会进行关键或者安全方面的更新，不会经常主动更新最新版本的packages，通常每6个月才会更新一次，下个月（2021年4月）就停止更新了。如果不是Sawyer SDK用的是ROS Kinetic 我也不会用16.04。</p>
-<p>解决方法如下：</p>
-<p>卸载Ubuntu提供的默认版本：<br></p><figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt remove --purge --auto-remove cmake</span><br></pre></td></tr></tbody></table></figure><br>或者<p></p>
+<p>Matlab可以直接读取rosbag数据，对于ROS自带的topic信息，比如/joint_states和/cmd_vel，用Matlab读取很方便。但是对于使用了自定义的message类型的topic，需要重新编译存放msg文件的ROS package，这一步骤在Matlab中使用<a target="_blank" rel="noopener" href="https://www.mathworks.com/help/ros/ref/rosgenmsg.html">rosgenmsg</a>命令完成，借助Matlab的java接口，Matlab就能识别自定义的message了。</p>
+<p>我的Matlab版本是R2021a，需要注意的是在R2020b版本中Matlab对ROS功能的支持做了很大改动，rosgenmsg 直接包含在了toolbox中（不需要额外的support package)，网上有的教程写需要通过roboticsAddons命令安装插件，应该用的是R2020b之前的Matlab版本。以后可以直接看这份官方文档：<a target="_blank" rel="noopener" href="https://www.mathworks.com/help/ros/ug/ros-custom-message-support.html">ROS Custom Message Support</a>，具体操作跟着文档走即可，这里主要是记录一下需要注意的地方。</p>
+<h2 id="1-Cmake版本问题"><a href="#1-Cmake版本问题" class="headerlink" title="1.Cmake版本问题"></a>1.Cmake版本问题</h2><p>Cmake版本要确保在3.15.5或以上，在Matlab官方文档<a target="_blank" rel="noopener" href="https://www.mathworks.com/help/ros/gs/ros-system-requirements.html">ROS System Requirements</a>也可以查到。</p>
+<p>检查你目前的Cmake版本：<br></p><figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cmake --version</span><br></pre></td></tr></tbody></table></figure><p></p>
+<p>如果版本低于3.15.5则需要更新，最常见的想法可能是直接在Linux终端用<code>sudo apt-get install cmake</code>安装，但是安装完发现是低于要求的版本，比如我用的Ubuntu 16.04，只能得到3.5.1，用<code>sudo apt-get install cmake</code>安装不了最新版本的原因是操作系统本身的repositories没有更新，16.04是Ubuntu的长期支持（LTS）版本，要在5年内保持稳定，一般只会进行关键或者安全方面的更新，不会经常主动更新最新版本的packages，通常每6个月才会更新一次，16.04下个月（2021年4月）就停止更新了。如果不是Sawyer SDK用的是ROS Kinetic 我也不会用16.04。</p>
+<p>推荐安装方法如下：</p>
+<p>卸载Ubuntu提供的默认版本：<br></p><figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt remove --purge --auto-remove cmake</span><br></pre></td></tr></tbody></table></figure><p></p>
+<p>或者</p>
 <figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt purge --auto-remove cmake</span><br></pre></td></tr></tbody></table></figure>
-<p>去<a target="_blank" rel="noopener" href="https://cmake.org/download/">CMake官网下载界面</a>，查看最新cmake版本号，逐条运行以下命令（修改version和build变量到你需要的版本号，例：3.19.1版本）：</p>
-<figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">version=3.19</span><br><span class="line">build=1</span><br><span class="line">mkdir ~/temp</span><br><span class="line">cd ~/temp</span><br><span class="line">wget https://cmake.org/files/v$version/cmake-$version.$build.tar.gz</span><br><span class="line">tar -xzvf cmake-$version.$build.tar.gz</span><br><span class="line">cd cmake-$version.$build/</span><br></pre></td></tr></tbody></table></figure>
-<p>逐条运行以下命进行安装：<br></p><figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">./bootstrap</span><br><span class="line">make -j$(nproc)</span><br><span class="line">sudo make install</span><br></pre></td></tr></tbody></table></figure><br>检查你的cmake版本：<br><figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cmake --version</span><br></pre></td></tr></tbody></table></figure><p></p>
-<p>cmake —version 运行的结果:<br></p><figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cmake version 3.19.1</span><br><span class="line"></span><br><span class="line">CMake suite maintained and supported by Kitware (kitware.com/cmake).</span><br></pre></td></tr></tbody></table></figure><p></p>
+<p>去<a target="_blank" rel="noopener" href="https://cmake.org/download/">CMake官网下载界面</a>，查看最新Cmake版本号，逐条运行以下命令：</p>
+<p>确定要安装的版本（修改version和build变量到需要的版本号，下例：3.19.1）：<br></p><figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">version=3.19</span><br><span class="line">build=1</span><br></pre></td></tr></tbody></table></figure><br>先新建一个文件夹temp来存放cmake源码包，然后获取cmake源码包：<br><figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mkdir ~/temp</span><br><span class="line">cd ~/temp</span><br><span class="line">wget https://cmake.org/files/v$version/cmake-$version.$build.tar.gz</span><br></pre></td></tr></tbody></table></figure><br>解压源码包:<br><figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar -xzvf cmake-$version.$build.tar.gz</span><br></pre></td></tr></tbody></table></figure><br>进入解压后的cmake目录:<br><figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cd cmake-$version.$build/</span><br></pre></td></tr></tbody></table></figure><br>安装cmake：<br><figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">./bootstrap</span><br><span class="line">make -j$(nproc)</span><br><span class="line">sudo make install</span><br></pre></td></tr></tbody></table></figure><br>Note: 因为我的是多核CPU，这里使用了<code>make -j$(nproc)</code>命令进行并行编译，不过直接用<code>make</code>出问题的概率小一点，<code>nproc</code>资料可以看<a target="_blank" rel="noopener" href="https://www.howtoforge.com/linux-nproc-command/">这里</a><br>      <code>make install</code>命令需要root privilege<p></p>
+<p>最后，打开一个新终端，检查Cmake版本：<br></p><figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cmake --version</span><br></pre></td></tr></tbody></table></figure><br>Note: <code>cmake --version</code>要在新终端才有用，因为用上面的方法Cmake会默认安装在<code>/usr/local/bin/</code>，如果你用开始提到的<code>sudo apt-get install cmake</code>安装，默认安装路径会是<code>/usr/bin/</code>原因可以看StackExchange上<a target="_blank" rel="noopener" href="https://unix.stackexchange.com/questions/8656/usr-bin-vs-usr-local-bin-on-linux">这个问答</a>：<code>/usr/local/bin</code> is for normal user programs not managed by the distribution package manager, e.g. locally compiled packages. You should not install them into <code>/usr/bin</code> because future distribution upgrades may modify or delete them without warning.<br><code>cmake --version</code>运行的结果:<p></p>
+<figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cmake version 3.19.1</span><br><span class="line"></span><br><span class="line">CMake suite maintained and supported by Kitware (kitware.com/cmake).</span><br></pre></td></tr></tbody></table></figure>
+<h2 id="2-Cmake路径问题"><a href="#2-Cmake路径问题" class="headerlink" title="2.Cmake路径问题"></a>2.Cmake路径问题</h2><p>更新好Cmake版本后，为了确保Cmake在Matlab中可用，需要保证Cmake在Matlab的环境变量中：<br>首先在Linux终端中查看Cmake路径，上面已经提过Cmake会默认安装在<code>/usr/local/bin/</code>，这里可以查看：<br></p><figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">which cmake</span><br></pre></td></tr></tbody></table></figure><br>运行结果：<br><figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/local/bin/cmake</span><br></pre></td></tr></tbody></table></figure><p></p>
 
       
     </div>
