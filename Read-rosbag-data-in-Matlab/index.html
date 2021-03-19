@@ -25,10 +25,12 @@
 <meta property="og:site_name" content="Siqin Dong">
 <meta property="og:description" content="最近在用Sawyer机器人做实验，用rosbag记录了机器人状态数据，后续要进行可视化和分析，虽然ROS内置rqt_plot有绘图功能，但是rqt_plot的功能比较简单，数据量大的时候查看起来也比较麻烦，还是导入进Matlab分析更好一些。 Matlab可以直接读取rosbag数据，对于ROS自带的topic信息，比如&#x2F;joint_states和&#x2F;cmd_vel，用Matlab读取很方便。但是对">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://i.loli.net/2021/03/19/FzMK1Ti5OWZu2GU.png">
 <meta property="article:published_time" content="2021-03-17T01:09:58.000Z">
-<meta property="article:modified_time" content="2021-03-18T05:39:43.509Z">
+<meta property="article:modified_time" content="2021-03-19T00:12:05.813Z">
 <meta property="article:author" content="Siqin Dong">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2021/03/19/FzMK1Ti5OWZu2GU.png">
   <!-- Canonical links -->
   <link rel="canonical" href="https://siqindong.github.io/Read-rosbag-data-in-Matlab/index.html">
   
@@ -348,7 +350,7 @@
 <span class="article-date">
     <i class="icon icon-calendar-check"></i>
     <a href="/Read-rosbag-data-in-Matlab/" class="article-date">
-        Edited on<time datetime="2021-03-18T05:39:43.509Z" itemprop="dateUpdated">
+        Edited on<time datetime="2021-03-19T00:12:05.813Z" itemprop="dateUpdated">
             03-18-2021
         </time>
     </a>
@@ -369,10 +371,10 @@
         <span class="post-comment"><i class="icon icon-comment"></i> <a href="/Read-rosbag-data-in-Matlab/#comments" class="article-comment-link">Comments</a></span>
         
 	
-		<span class="post-wordcount hidden-xs" itemprop="wordCount">Words : 1k</span>
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">Words : 1.5k</span>
 	
 	
-		<span class="post-readcount hidden-xs" itemprop="timeRequired">Reading time ≈ 4 mins</span>
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">Reading time ≈ 6 mins</span>
 	
 
       </div>
@@ -424,10 +426,40 @@
 <li>然后打开<strong>Mtalab</strong>，命令行运行：<figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">!which cmake</span><br></pre></td></tr></tbody></table></figure>
 运行结果应该和前面Linux终端查到的路径一致：<figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/local/bin/cmake</span><br></pre></td></tr></tbody></table></figure></li>
 <li>最后也在Matlab查看一下Cmake版本：<figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">!cmake --version</span><br></pre></td></tr></tbody></table></figure>
-运行结果应该和前面Linux终端查到版本号一致：<figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cmake version 3.19.1</span><br><span class="line"></span><br><span class="line">CMake suite maintained and supported by Kitware (kitware.com/cmake).</span><br></pre></td></tr></tbody></table></figure>
+运行结果应和前面Linux终端查到版本号一致：<figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cmake version 3.19.1</span><br><span class="line"></span><br><span class="line">CMake suite maintained and supported by Kitware (kitware.com/cmake).</span><br></pre></td></tr></tbody></table></figure>
 </li>
 </ul>
-<h2 id="3-编译自定义message时的路径问题"><a href="#3-编译自定义message时的路径问题" class="headerlink" title="3. 编译自定义message时的路径问题"></a>3. 编译自定义message时的路径问题</h2>
+<h2 id="3-编译自定义message时的路径问题"><a href="#3-编译自定义message时的路径问题" class="headerlink" title="3. 编译自定义message时的路径问题"></a>3. 编译自定义message时的路径问题</h2><p>这里用Sawyer提供的ROS package<code>intera_core_msgs</code>举例，自定义的message文件就在<code>msg</code>里面，需要自己建个文件夹<code>sawyer_custom_msg_matlab</code>包含这个package，以后有其他package也可以放到这个文件夹里面。<code>intera_core_msgs</code>package我是直接从<a target="_blank" rel="noopener" href="https://github.com/RethinkRobotics/intera_common/tree/master/intera_core_msgs">Sawyer Github</a>上复制进来的，里面已经生成且配置好<code>CmakeLists.txt</code>和<code>package.xml</code>文件了，如果你想自己create ROS package也可以，注意别忘了修改这两个文件。后面的<code>matlab_msg_gen_ros1</code>文件夹就是用Matlab编译生成的，下面会演示。</p>
+<div align="center">
+  <img src="https://i.loli.net/2021/03/19/FzMK1Ti5OWZu2GU.png">
+</div>
+
+<blockquote>
+<p><strong>Note</strong></p>
+<ul>
+<li>因为只要用到msg，我复制<code>intera_core_msgs</code>package时没有复制<code>srv</code>，需要的时候再加进去。</li>
+<li>目前不支持ROS actions，在自定义message生成期间将被忽略。</li>
+</ul>
+</blockquote>
+<p>接下来就可以在Matlab里面用<a target="_blank" rel="noopener" href="https://www.mathworks.com/help/ros/ref/rosgenmsg.html"><code>rosgenmsg</code></a>命令编译了：</p>
+<ul>
+<li>声明自定义message所在ROS package的路径：<figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sawyer_folder = '/home/siqin/Documents/MATLAB/custom_msgs/sawyer_custom_msg_matlab'</span><br></pre></td></tr></tbody></table></figure>
+运行结果：<figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sawyer_folder =</span><br><span class="line"></span><br><span class="line">    '/home/siqin/Documents/MATLAB/custom_msgs/sawyer_custom_msg_matlab'</span><br></pre></td></tr></tbody></table></figure></li>
+<li>Call rosgenmsg:<figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rosgenmsg(sawyer_folder)</span><br></pre></td></tr></tbody></table></figure>
+运行结果：<figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">Identifying message files in folder '/home/siqin/Documents/MATLAB/custom_msgs/sawyer_custom_msg_matlab'..Done.</span><br><span class="line">Validating message files in folder '/home/siqin/Documents/MATLAB/custom_msgs/sawyer_custom_msg_matlab'..Done.</span><br><span class="line">[1/1] Generating MATLAB interfaces for custom message packages... Done.</span><br><span class="line">Running catkin build in folder '/home/siqin/Documents/MATLAB/custom_msgs/sawyer_custom_msg_matlab/matlab_msg_gen_ros1/glnxa64'.</span><br><span class="line">Build in progress. This may take several minutes...</span><br><span class="line">Build succeeded.build log</span><br><span class="line"> </span><br><span class="line">To use the custom messages, follow these steps:</span><br><span class="line"> </span><br><span class="line">1. Add the custom message folder to the MATLAB path by executing:</span><br><span class="line"> </span><br><span class="line">addpath('/home/siqin/Documents/MATLAB/custom_msgs/sawyer_custom_msg_matlab/matlab_msg_gen_ros1/glnxa64/install/m')</span><br><span class="line">savepath</span><br><span class="line"> </span><br><span class="line">2. Refresh all message class definitions, which requires clearing the workspace, by executing:</span><br><span class="line"> </span><br><span class="line">clear classes</span><br><span class="line">rehash toolboxcache</span><br><span class="line"> </span><br><span class="line">3. Verify that you can use the custom messages. </span><br><span class="line">   Enter "rosmsg list" and ensure that the output contains the generated</span><br><span class="line">   custom message types.</span><br></pre></td></tr></tbody></table></figure></li>
+<li>然后按照上面的提示说明加入环境变量，清理一下工作空间就可以了，逐条运行：<figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">addpath('/home/siqin/Documents/MATLAB/custom_msgs/sawyer_custom_msg_matlab/matlab_msg_gen_ros1/glnxa64/install/m')</span><br><span class="line">savepath</span><br><span class="line">clear classes</span><br><span class="line">rehash toolboxcache</span><br></pre></td></tr></tbody></table></figure>
+<blockquote>
+<p><strong>Note</strong><br>执行<code>savepath</code>时如果提示无法修改Matlab路径文件的话，有两种解决方法：</p>
+<ul>
+<li>第一种：在当前Matlab命令窗口修改权限：<br>查看pathdef路径:<figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">which pathdef</span><br></pre></td></tr></tbody></table></figure>
+运行结果：<figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/local/MATLAB/R2021a/toolbox/local/pathdef.m</span><br></pre></td></tr></tbody></table></figure>
+修改成所有user都有读和写的权限：<figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo chmod 666 /usr/local/MATLAB/R2018a/toolbox/local/pathdef.m</span><br></pre></td></tr></tbody></table></figure></li>
+<li>第二种：重新用<code>sudo matlab</code>打开Matlab</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+
       
     </div>
     <div class="article-footer">
