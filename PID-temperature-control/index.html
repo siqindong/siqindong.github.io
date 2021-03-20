@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>PID temperature control | Siqin Dong</title>
+  <meta name="description" content="12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061626364656667686970717273747576777879808182838485868788899091929394959697989910010110210">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PID temperature control">
+<meta property="og:url" content="https://siqindong.github.io/PID-temperature-control/index.html">
+<meta property="og:site_name" content="Siqin Dong">
+<meta property="og:description" content="12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061626364656667686970717273747576777879808182838485868788899091929394959697989910010110210">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-10-16T01:59:16.000Z">
+<meta property="article:modified_time" content="2021-03-20T01:49:47.649Z">
+<meta property="article:author" content="Siqin Dong">
+<meta property="article:tag" content="Arduino">
+<meta name="twitter:card" content="summary">
+  <!-- Canonical links -->
+  <link rel="canonical" href="https://siqindong.github.io/PID-temperature-control/index.html">
+  
+    <link rel="alternate" href="/atom.xml" title="Siqin Dong" type="application/atom+xml">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+    <link href="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.3.5/dist/jquery.fancybox.min.css" rel="stylesheet">
+  
+  
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1.4.0/dist/gitalk.min.css">
+  
+<meta name="generator" content="Hexo 5.0.0">
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+
+<body class="main-center" itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/siqindong" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">Siqin Dong</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Student</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Virginia, United States</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">Repository</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-links">
+          <a href="/links">
+            
+            <i class="icon icon-friendship"></i>
+            
+            <span class="menu-title">Links</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">About</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/siqindong" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="https://www.linkedin.com/in/siqin-dong-3307a4138" target="_blank" title="Linkedin" data-toggle=tooltip data-placement=top><i class="icon icon-linkedin"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>Welcome to my blog!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithm/">Algorithm</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Tutorial/">Tutorial</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Arduino/" rel="tag">Arduino</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Arduino/" style="font-size: 13px;">Arduino</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Algorithm/">Algorithm</a>
+              </p>
+              <p class="item-title">
+                <a href="/Kalman-Filter/" class="title">Kalman Filter Part 1 - Recursive Processing</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2020-12-17T01:28:37.000Z" itemprop="datePublished">12-16-2020</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/Gaussian-Processes/" class="title">Gaussian Processes</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2020-11-14T05:11:14.000Z" itemprop="datePublished">11-14-2020</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Tutorial/">Tutorial</a>
+              </p>
+              <p class="item-title">
+                <a href="/PID-temperature-control/" class="title">PID temperature control</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2020-10-16T01:59:16.000Z" itemprop="datePublished">10-15-2020</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<aside class="sidebar sidebar-toc" id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">Catalogue</h3>
+      
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-PID-temperature-control" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      PID temperature control
+    </h1>
+  
+
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar"></i>
+    <a href="/PID-temperature-control/" class="article-date">
+        Posted on<time datetime="2020-10-16T01:59:16.000Z" itemprop="datePublished">
+            10-15-2020
+        </time>
+    </a>
+</span>
+
+<span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+    <a href="/PID-temperature-control/" class="article-date">
+        Edited on<time datetime="2021-03-20T01:49:47.649Z" itemprop="dateUpdated">
+            03-19-2021
+        </time>
+    </a>
+</span>
+
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/Tutorial/">Tutorial</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link-link" href="/tags/Arduino/" rel="tag">Arduino</a>
+  </span>
+
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="icon icon-eye-fill" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/PID-temperature-control/#comments" class="article-comment-link">Comments</a></span>
+        
+	
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">Words : 513</span>
+	
+	
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">Reading time ≈ 3 mins</span>
+	
+
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Import required libraries</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;ArducamSSD1306.h&gt; // Modification of Adafruit_SSD1306 for ESP8266 compatibility</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;Adafruit_GFX.h&gt;   // Needs a little change in original Adafruit library (See README.txt file)</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;Wire.h&gt;           // For I2C comm, but needed for not getting compile error</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">HardWare I2C pins</span></span><br><span class="line"><span class="comment">A4   SDA</span></span><br><span class="line"><span class="comment">A5   SCL</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Pin definitions</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> OLED_RESET  16  <span class="comment">// Pin 16 -RESET digital signal</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> LOGO16_GLCD_HEIGHT 16</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> LOGO16_GLCD_WIDTH  16</span></span><br><span class="line"></span><br><span class="line"><span class="function">ArducamSSD1306 <span class="title">display</span><span class="params">(OLED_RESET)</span></span>; <span class="comment">// FOR I2C</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//====================================================================================================</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//Variables</span></span><br><span class="line"><span class="keyword">float</span> temperature_read = <span class="number">0.0</span>;</span><br><span class="line"><span class="keyword">float</span> set_temperature = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">float</span> PID_error = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">float</span> previous_error = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">int</span> PID_value = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">int</span> PWM_pin = <span class="number">3</span>;</span><br><span class="line"><span class="keyword">float</span> elapsedTime;</span><br><span class="line"></span><br><span class="line"><span class="keyword">unsigned</span> <span class="keyword">long</span> currentMillis;</span><br><span class="line"><span class="keyword">unsigned</span> <span class="keyword">long</span> previousMillis_pid = <span class="number">0</span>;  <span class="comment">//will store last time</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">long</span> period_pid = <span class="number">132</span>;         <span class="comment">// period at PID in ms</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//PID constants</span></span><br><span class="line"><span class="keyword">int</span> kp = <span class="number">9.1</span>;   <span class="keyword">int</span> ki = <span class="number">0.3</span>;   <span class="keyword">int</span> kd = <span class="number">1.8</span>;</span><br><span class="line"><span class="keyword">int</span> PID_p = <span class="number">0</span>;    <span class="keyword">int</span> PID_i = <span class="number">0</span>;    <span class="keyword">int</span> PID_d = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//NTC 3950 100K ohm Thermistor Sensor</span></span><br><span class="line"><span class="keyword">int</span> ThermistorPin = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">int</span> Vo;</span><br><span class="line"><span class="keyword">float</span> R1 = <span class="number">10000</span>;</span><br><span class="line"><span class="keyword">float</span> logR2, R2, T, Tc, Tf;</span><br><span class="line"><span class="keyword">float</span> c1 = <span class="number">1.009249522e-03</span>, c2 = <span class="number">2.378405444e-04</span>, c3 = <span class="number">2.019202697e-07</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//====================================================================================================</span></span><br><span class="line"><span class="comment">//====================================================================================================</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">setup</span><span class="params">()</span> </span>{</span><br><span class="line">  <span class="comment">// SSD1306 Init</span></span><br><span class="line">  display.begin();  <span class="comment">// Switch OLED</span></span><br><span class="line"></span><br><span class="line">  pinMode(PWM_pin,OUTPUT);</span><br><span class="line">  TCCR2B = TCCR2B &amp; B11111000 | <span class="number">0x03</span>;    <span class="comment">// pin 3 and 11 PWM frequency of 980.39 Hz</span></span><br><span class="line">  </span><br><span class="line">  Serial.begin(<span class="number">9600</span>);</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">//====================================================================================================</span></span><br><span class="line"><span class="comment">//====================================================================================================</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">loop</span><span class="params">()</span> </span>{</span><br><span class="line">  currentMillis = millis(); <span class="comment">// store the current time</span></span><br><span class="line">  </span><br><span class="line">  <span class="keyword">if</span> (currentMillis - previousMillis_pid &gt;= period_pid) { <span class="comment">// check if 100ms passed</span></span><br><span class="line">    displayTemp();</span><br><span class="line">    </span><br><span class="line">    Serial.print(set_temperature);</span><br><span class="line">    Serial.print(<span class="string">"\t"</span>); <span class="comment">// or Serial.print(" ")</span></span><br><span class="line">    Serial.print(temperature_read);</span><br><span class="line">    Serial.print(<span class="string">"\t"</span>); <span class="comment">// or Serial.print(" ")</span></span><br><span class="line">    Serial.print(currentMillis - previousMillis_pid);</span><br><span class="line">    Serial.print(<span class="string">"\t"</span>); <span class="comment">// or Serial.print(" ")</span></span><br><span class="line">    Serial.print(elapsedTime);</span><br><span class="line">    Serial.print(<span class="string">"\t"</span>); <span class="comment">// or Serial.print(" ")</span></span><br><span class="line">    Serial.println(PID_value);</span><br><span class="line">    </span><br><span class="line">    previousMillis_pid = currentMillis; <span class="comment">// save the last time</span></span><br><span class="line"></span><br><span class="line">    set_temperature = setTemp();</span><br><span class="line">  </span><br><span class="line">    <span class="comment">//First we read the real value of temperature</span></span><br><span class="line">    temperature_read = readThermocouple();</span><br><span class="line">    <span class="comment">//Next we calculate the error between the setpoint and the real value</span></span><br><span class="line">  </span><br><span class="line">    PID_error = set_temperature - temperature_read;</span><br><span class="line">  </span><br><span class="line">    <span class="comment">//Calculate the P value</span></span><br><span class="line">    PID_p = kp * PID_error;</span><br><span class="line">  </span><br><span class="line">    <span class="comment">//Calculate the I value in a range on +-3</span></span><br><span class="line">    <span class="keyword">if</span>(<span class="number">-3</span> &lt; PID_error &lt;<span class="number">3</span>)</span><br><span class="line">    {</span><br><span class="line">      PID_i = PID_i + (ki * PID_error);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="comment">//For derivative we need real time to calculate speed change rate</span></span><br><span class="line">    elapsedTime = <span class="keyword">float</span>(period_pid)/<span class="number">1000</span>;</span><br><span class="line">    PID_d = kd*((PID_error - previous_error)/elapsedTime);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//Final total PID value is the sum of P + I + D</span></span><br><span class="line">    PID_value = PID_p + PID_i + PID_d;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//We define PWM range between 0 and 255</span></span><br><span class="line">    <span class="keyword">if</span>(PID_value &lt; <span class="number">0</span>)</span><br><span class="line">    {    PID_value = <span class="number">0</span>;    }</span><br><span class="line">    <span class="keyword">if</span>(PID_value &gt; <span class="number">255</span>)  </span><br><span class="line">    {    PID_value = <span class="number">255</span>;  }</span><br><span class="line">    <span class="comment">//Now we can write the PWM signal to the mosfet on digital pin D3</span></span><br><span class="line">    analogWrite(PWM_pin,<span class="number">255</span>-PID_value);</span><br><span class="line">    previous_error = PID_error;     <span class="comment">//Remember to store the previous error for next loop.</span></span><br><span class="line"></span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">//====================================================================================================</span></span><br><span class="line"><span class="comment">//====================================================================================================</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">setTemp</span><span class="params">()</span></span>{</span><br><span class="line">  <span class="keyword">int</span> Val = analogRead(A1); <span class="comment">//read the input on analog pin 1</span></span><br><span class="line">  Val = <span class="built_in">map</span>(Val, <span class="number">0</span>, <span class="number">1023</span>, <span class="number">99</span>, <span class="number">10</span>);</span><br><span class="line">  <span class="keyword">return</span> Val;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">//====================================================================================================</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">double</span> <span class="title">readThermocouple</span><span class="params">()</span> </span>{</span><br><span class="line">  Vo = analogRead(ThermistorPin);</span><br><span class="line">  R2 = R1 * (<span class="number">1023.0</span> / (<span class="keyword">float</span>)Vo - <span class="number">1.0</span>);</span><br><span class="line">  logR2 = <span class="built_in">log</span>(R2);</span><br><span class="line">  T = (<span class="number">1.0</span> / (c1 + c2*logR2 + c3*logR2*logR2*logR2));</span><br><span class="line">  Tc = T - <span class="number">273.15</span>;</span><br><span class="line">  Tf = (Tc * <span class="number">9.0</span>)/ <span class="number">5.0</span> + <span class="number">32.0</span>; </span><br><span class="line">  <span class="keyword">return</span> Tc;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">//====================================================================================================</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">displayTemp</span><span class="params">()</span> </span>{</span><br><span class="line">  </span><br><span class="line">  display.clearDisplay();</span><br><span class="line">  display.setTextColor(WHITE);</span><br><span class="line">  </span><br><span class="line">  display.setTextSize(<span class="number">1</span>);</span><br><span class="line">  display.setCursor(<span class="number">10</span>, <span class="number">8</span>);</span><br><span class="line">  display.print(<span class="string">"Temperature"</span>);</span><br><span class="line"></span><br><span class="line">  display.setCursor(<span class="number">10</span>, <span class="number">30</span>);</span><br><span class="line">  display.setTextSize(<span class="number">2</span>);</span><br><span class="line">  display.print(F(<span class="string">"S:"</span>));</span><br><span class="line">  display.print(set_temperature);</span><br><span class="line">  display.print(F(<span class="string">" C"</span>));</span><br><span class="line">  </span><br><span class="line">  display.setCursor(<span class="number">10</span>, <span class="number">50</span>);</span><br><span class="line">  display.setTextSize(<span class="number">2</span>);</span><br><span class="line">  display.print(F(<span class="string">"R:"</span>));</span><br><span class="line">  display.print(Tc);</span><br><span class="line">  display.print(F(<span class="string">" C"</span>));</span><br><span class="line">  </span><br><span class="line">  display.display();</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">//====================================================================================================</span></span><br></pre></td></tr></tbody></table></figure>
+      
+    </div>
+    <div class="article-footer">
+      <!--
+<blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="https://siqindong.github.io/PID-temperature-control/" title="PID temperature control" target="_blank" rel="external">https://siqindong.github.io/PID-temperature-control/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+-->
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/siqindong" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/siqindong" target="_blank"><span class="text-dark">Siqin Dong</span><small class="ml-1x">Student</small></a></h3>
+        <div>Mechanical Engineering</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+           
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/Gaussian-Processes/" title="Gaussian Processes"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Next Post</span></a>
+    </li>
+    
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn collapsed" data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="Catalogue" role="button">
+        <span>[&nbsp;</span><span>Catalogue</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+    <div class="share-component" data-sites="wechat,facebook,twitter" data-mobile-sites="wechat,facebook,twitter"></div>
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/siqindong" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="https://www.linkedin.com/in/siqin-dong-3307a4138" target="_blank" title="Linkedin" data-toggle=tooltip data-placement=top><i class="icon icon-linkedin"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        &copy; 2021 Siqin Dong
+        
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+   
+    
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+  <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+  <script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: '',
+    clientSecret: '',
+    repo: 'comment-gitalk',
+    owner: 'siqindong',
+    admin: ['siqindong'],
+    id: md5(location.pathname),
+    distractionFreeMode: true
+  })
+  gitalk.render('comments')
+  </script>
+
+
+
+
+
+
+  <script src="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.3.5/dist/jquery.fancybox.min.js"></script>
+  <script>
+  //利用 FancyBox 实现点击图片放大
+  $(document).ready(function() {
+    $('article img').not('[hidden]').not('.panel-body img').each(function() {
+      var $image = $(this);
+      var imageCaption = $image.attr('alt');
+      var $imageWrapLink = $image.parent('a');
+      if ($imageWrapLink.length < 1) {
+        var src = this.getAttribute('src');
+        var idx = src.lastIndexOf('?');
+        if (idx != -1) {
+          src = src.substring(0, idx);
+        }
+        $imageWrapLink = $image.wrap('<a href="' + src + '"></a>').parent('a');
+      }
+      $imageWrapLink.attr('data-fancybox', 'images');
+      if (imageCaption) {
+        $imageWrapLink.attr('data-caption', imageCaption);
+      }
+    });
+    $().fancybox({
+      selector: '[data-fancybox="images"]',
+      hash: false,
+      loop: false,
+    });
+  });
+  </script>
+
+
+
+
+
+
+<div id="go-top"></div>
+
+<style type="text/css">
+#go-top {
+ width:40px;height:36px;
+ background-color:#777;
+ position:relative;
+ border-radius:2px;
+ position:fixed;right:10px;bottom:60px;
+ cursor:pointer;display:none;
+}
+#go-top:after {
+ content:" ";
+ position:absolute;left:14px;top:14px;
+ border-top:2px solid #fff;border-right:2px solid #fff;
+ width:12px;height:12px;
+ transform:rotate(-45deg);
+}
+#go-top:hover {
+ background-color:#333;
+}
+</style>
+
+<script>
+$(function () {
+  var top=$("#go-top");
+  $(window).scroll(function () {
+    ($(window).scrollTop() > 300) ? top.show(300) : top.hide(200);
+    $("#go-top").click(function () {
+      $('body,html').animate({scrollTop:0});
+      return false();
+    })
+  });
+});
+</script>
+  
+  <style>
+    .copy-btn {
+      display: inline-block;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 20px;
+      color: #333;
+      white-space: nowrap;
+      vertical-align: middle;
+      cursor: pointer;
+      background-color: #eee;
+      background-image: linear-gradient(#fcfcfc, #eee);
+      border: 1px solid #d5d5d5;
+      border-radius: 3px;
+      user-select: none;
+      outline: 0;
+    }
+
+    .highlight-wrap .copy-btn {
+      transition: opacity .3s ease-in-out;
+      opacity: 0;
+      padding: 2px 6px;
+      position: absolute;
+      right: 3px;
+      top: 3px;
+      z-index: 2;
+    }
+
+    .highlight-wrap:hover .copy-btn,
+        .highlight-wrap .copy-btn:focus {
+      opacity: 1
+    }
+
+    .highlight-wrap {
+      position: relative;
+    }
+  </style>
+
+  <script>
+    addLoadEvent(()=>{
+      $('.highlight').each(function (i, e) {
+        var $wrap = $('<div>').addClass('highlight-wrap')
+        $(e).after($wrap)
+        $wrap.append($('<button>').addClass('copy-btn').append('Copy').on('click', function (e) {
+          var code = $(this).parent().find(".code")[0].innerText
+          
+          var ta = document.createElement('textarea')
+          document.body.appendChild(ta)
+          ta.style.position = 'absolute'
+          ta.style.top = '0px'
+          ta.style.left = '0px'
+          ta.value = code
+          ta.select()
+          ta.focus()
+          var result = document.execCommand('copy')
+          document.body.removeChild(ta)
+          
+            if(result)$(this).text('Copied')
+            else $(this).text('Copy failed')
+          
+          $(this).blur()
+        })).on('mouseleave', function (e) {
+          var $b = $(this).find('.copy-btn')
+          setTimeout(function () {
+            $b.text('Copy')
+          }, 300)
+        }).append(e)
+      })
+    })
+  </script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>
