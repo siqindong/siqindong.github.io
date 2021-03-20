@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://siqindong.github.io/test/</loc>
+    
+    <lastmod>2021-03-20</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://siqindong.github.io/Kalman-Filter/</loc>
     
     <lastmod>2021-03-20</lastmod>
