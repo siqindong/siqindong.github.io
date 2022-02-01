@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>Gaussian Processes | Siqin Dong</title>
+  <meta name="description" content="IntroductionIn supervised learning, we often use parametric models $p(\mathbf{y} \lvert \mathbf{X},\boldsymbol\theta)$ to explain data and infer optimal values of parameter $\boldsymbol\theta$ via max">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Gaussian Processes">
+<meta property="og:url" content="https://siqindong.com/2020/11/14/Gaussian-Processes/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="IntroductionIn supervised learning, we often use parametric models $p(\mathbf{y} \lvert \mathbf{X},\boldsymbol\theta)$ to explain data and infer optimal values of parameter $\boldsymbol\theta$ via max">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://i.loli.net/2020/10/11/1PCjDxdQRe5Z8AY.png">
+<meta property="og:image" content="https://i.loli.net/2020/10/11/apMiwYxU1S5bPTy.png">
+<meta property="og:image" content="https://i.loli.net/2020/10/11/apMiwYxU1S5bPTy.png">
+<meta property="og:image" content="https://i.loli.net/2020/10/11/snN5p8c4a213AtR.png">
+<meta property="og:image" content="https://i.loli.net/2020/10/11/JTyoUWwkn8vgDKH.png">
+<meta property="og:image" content="https://i.loli.net/2020/10/11/JTyoUWwkn8vgDKH.png">
+<meta property="og:image" content="https://i.loli.net/2020/10/11/C9daYNwu4M5W2rq.png">
+<meta property="og:image" content="https://i.loli.net/2020/10/11/BRNfYlsPL3J2Imx.png">
+<meta property="og:image" content="https://i.loli.net/2020/10/11/3OCpPnfbsBI9d8K.png">
+<meta property="og:image" content="https://i.loli.net/2020/10/11/aqxECbszmH5J7VN.png">
+<meta property="og:image" content="https://i.loli.net/2020/10/11/ONlIuoDvdei4s9W.png">
+<meta property="og:image" content="https://i.loli.net/2020/10/11/IMFoX2O56sHeZJz.png">
+<meta property="og:image" content="https://i.loli.net/2020/10/11/5CNWtifgTPEUaIw.png">
+<meta property="og:image" content="https://i.loli.net/2020/10/11/bipGWgtfJeFOKrR.png">
+<meta property="og:image" content="https://i.loli.net/2020/11/15/b5r4B6mWYzeqhOK.png">
+<meta property="og:image" content="https://i.loli.net/2020/10/11/RhfyaLoGKF3u7Vb.png">
+<meta property="article:published_time" content="2020-11-14T05:11:14.000Z">
+<meta property="article:modified_time" content="2022-02-01T20:21:57.235Z">
+<meta property="article:author" content="Siqin Dong">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2020/10/11/1PCjDxdQRe5Z8AY.png">
+  <!-- Canonical links -->
+  <link rel="canonical" href="https://siqindong.com/2020/11/14/Gaussian-Processes/index.html">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    <link href="//cdn.jsdelivr.net/npm/katex@0.9.0/dist/katex.min.css" rel="stylesheet">
+  
+  
+  
+    <link href="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.3.5/dist/jquery.fancybox.min.css" rel="stylesheet">
+  
+  
+<meta name="generator" content="Hexo 6.0.0"></head>
+
+
+<body class="main-center" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/siqindong" target="_blank">
+          <img class="img-circle img-rotate" src="/images/moon.png" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">Siqin Dong</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Student</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Virginia, United States</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">Repository</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-links">
+          <a href="/links">
+            
+            <i class="icon icon-friendship"></i>
+            
+            <span class="menu-title">Links</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">About</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/siqindong" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="https://www.linkedin.com/in/siqin-dong-3307a4138" target="_blank" title="Linkedin" data-toggle=tooltip data-placement=top><i class="icon icon-linkedin"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>Welcome to my blog!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithm/">Algorithm</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Tutorial/">Tutorial</a><span class="category-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Matlab/" rel="tag">Matlab</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ROS/" rel="tag">ROS</a><span class="tag-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Matlab/" style="font-size: 13px;">Matlab</a> <a href="/tags/ROS/" style="font-size: 13px;">ROS</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">March 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2021/10/20/Fourier-Transform/" class="title">Fourier Transform</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2021-10-20T23:49:46.000Z" itemprop="datePublished">10-20-2021</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Tutorial/">Tutorial</a>
+              </p>
+              <p class="item-title">
+                <a href="/2021/03/16/%E5%9C%A8Matlab%E4%B8%AD%E8%AF%BB%E5%8F%96%E5%B9%B6%E5%88%86%E6%9E%90rosbag%E6%95%B0%E6%8D%AE/" class="title">在Matlab中读取并分析rosbag数据</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2021-03-17T01:09:58.000Z" itemprop="datePublished">03-16-2021</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Tutorial/">Tutorial</a>
+              </p>
+              <p class="item-title">
+                <a href="/2021/03/16/Read-and-analyze-rosbag-data-in-Matlab/" class="title">Read and analyze rosbag data in Matlab</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2021-03-17T01:09:58.000Z" itemprop="datePublished">03-16-2021</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Algorithm/">Algorithm</a>
+              </p>
+              <p class="item-title">
+                <a href="/2020/12/16/Kalman-Filter/" class="title">Kalman Filter</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2020-12-17T01:28:37.000Z" itemprop="datePublished">12-16-2020</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2020/11/14/Gaussian-Processes/" class="title">Gaussian Processes</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2020-11-14T05:11:14.000Z" itemprop="datePublished">11-14-2020</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+  <aside class="sidebar sidebar-toc collapse " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">Catalogue</h3>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Introduction"><span class="toc-number">1.</span> <span class="toc-text">Introduction</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Univariate-Gaussian-distribution"><span class="toc-number">2.</span> <span class="toc-text">Univariate Gaussian distribution</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Multivariate-Gaussian-distribution"><span class="toc-number">3.</span> <span class="toc-text">Multivariate Gaussian distribution</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Gaussian-Processes"><span class="toc-number">4.</span> <span class="toc-text">Gaussian Processes</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Implementation-with-NumPy"><span class="toc-number">5.</span> <span class="toc-text">Implementation with NumPy</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Prior"><span class="toc-number">5.1.</span> <span class="toc-text">Prior</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Prediction-from-noise-free-training-data"><span class="toc-number">5.2.</span> <span class="toc-text">Prediction from noise-free training data</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Prediction-from-noisy-training-data"><span class="toc-number">5.3.</span> <span class="toc-text">Prediction from noisy training data</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Effect-of-kernel-parameters-and-noise-parameter"><span class="toc-number">5.4.</span> <span class="toc-text">Effect of kernel parameters and noise parameter</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Higher-dimensions"><span class="toc-number">5.5.</span> <span class="toc-text">Higher dimensions</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Library-that-implement-GPs"><span class="toc-number">6.</span> <span class="toc-text">Library that implement GPs</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Scikit-learn"><span class="toc-number">6.1.</span> <span class="toc-text">Scikit-learn</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#References"><span class="toc-number">7.</span> <span class="toc-text">References</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-Gaussian-Processes" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Gaussian Processes
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2020/11/14/Gaussian-Processes/" class="article-date">
+	  <time datetime="2020-11-14T05:11:14.000Z" itemprop="datePublished">11-14-2020</time>
+	</a>
+</span>
+        
+        
+
+        
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2020/11/14/Gaussian-Processes/#comments" class="article-comment-link">Comments</a></span>
+        
+	
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">Words: 3.7k(words)</span>
+	
+	
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">Reading time: 23(mins)</span>
+	
+
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>In supervised learning, we often use parametric models $p(\mathbf{y} \lvert \mathbf{X},\boldsymbol\theta)$ to explain data and infer optimal values of parameter $\boldsymbol\theta$ via <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Maximum_likelihood_estimation">maximum likelihood</a> or <a target="_blank" rel="noopener" href="https://de.wikipedia.org/wiki/Maximum_a_posteriori">maximum a posteriori</a> estimation. If needed we can also infer a full <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Posterior_probability">posterior distribution</a> $p(\boldsymbol\theta \lvert \mathbf{X},\mathbf{y})$ instead of a point estimate $\boldsymbol{\hat\theta}$. With increasing data complexity, models with a higher number of parameters are usually needed to explain data reasonably well. Methods that use models with a fixed number of parameters are called parametric methods. </p>
+<p>In non-parametric methods, on the other hand, the number of parameters depend on the dataset size. For example, in <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Kernel_regression">Nadaraya-Watson kernel regression</a>, a weight $w_i$ is assigned to each observed target $y_i$ and for predicting the target value at a new point $\mathbf{x}$ a weighted average is computed: </p>
+<script type="math/tex; mode=display">
+\begin{align*}
+f(\mathbf{x}) &= \sum_{i=1}^{N}w_i(\mathbf{x})y_i \\
+w_i(\mathbf{x}) &= \frac{\kappa(\mathbf{x}, \mathbf{x}_{i})}{\sum_{i'=1}^{N}\kappa(\mathbf{x}, \mathbf{x}_{i'})}
+\end{align*}</script><p>Observations that are closer to $\mathbf{x}$ have a higher weight than observations that are further away. Weights are computed from $\mathbf{x}$ and observed $\mathbf{x}_i$ with a kernel $\kappa$. A special case is k-nearest neighbors (KNN) where the $k$ closest observations have a weight $1/k$, and all others have weight $0$. Non-parametric methods often need to process all training data for prediction and are therefore slower at inference time than parametric methods. On the other hand, training is usually faster as non-parametric models only need to remember training data. </p>
+<p>Another example of non-parametric methods are <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Gaussian_process">Gaussian processes</a> (GPs). Instead of inferring a distribution over the parameters of a parametric function Gaussian processes can be used to infer a distribution over functions directly. A Gaussian process defines a prior over functions. After having observed some function values it can be converted into a posterior over functions. Inference of continuous function values in this context is known as GP regression but GPs can also be used for classification. </p>
+<h2 id="Univariate-Gaussian-distribution"><a href="#Univariate-Gaussian-distribution" class="headerlink" title="Univariate Gaussian distribution"></a>Univariate Gaussian distribution</h2><p>The probability density function of a univariate Gaussian distribution:</p>
+<script type="math/tex; mode=display">
+\begin{align*}
+p(\mathbf{x}) = \frac{1}{\sigma\sqrt{2\pi}}\exp (-\frac{(\mathbf{x}-\boldsymbol{\mu})^2}{2\sigma^2}) \tag{1}\label{eq1}
+\end{align*}</script><p>$\boldsymbol{\mu}$ is the mean or expectation of the distribution (and also its median and mode), while the parameter $\sigma$ is its standard deviation.The variance of the distribution is $\sigma^2$.</p>
+<h2 id="Multivariate-Gaussian-distribution"><a href="#Multivariate-Gaussian-distribution" class="headerlink" title="Multivariate Gaussian distribution"></a>Multivariate Gaussian distribution</h2><p>The multivariate Gaussian distribution is a generalization of the univariate Gaussian distribution to higher dimensions. Assuming that the dimensions are independent of each other:</p>
+<script type="math/tex; mode=display">
+\begin{align*}
+p(\mathbf{x}_{1}, \mathbf{x}_{2}, ..., \mathbf{x}_{N}) &= \prod_{i=1}^{N}p(\mathbf{x}_{i}) \\
+&= \frac{1}{(2\pi)^{\frac{N}{2}}\sigma_1\sigma_2...\sigma_N}\exp \left(-\frac{1}{2}\left [\frac{(\mathbf{x}_{1}-\boldsymbol{\mu}_{1})^2}{\sigma_1^2} + \frac{(\mathbf{x}_{2}-\boldsymbol{\mu}_{2})^2}{\sigma_2^2} + ... + \frac{(\mathbf{x}_{N}-\boldsymbol{\mu}_{N})^2}{\sigma_N^2}\right]\right) \tag{2}\label{eq2}
+\end{align*}</script><p>Equation $(2)$ in matrix form:</p>
+<script type="math/tex; mode=display">
+\begin{align*}
+\mathbf{x}-\boldsymbol{\mu} &= [\mathbf{x}_{1}-\boldsymbol{\mu}_{1}, \mathbf{x}_{2}-\boldsymbol{\mu}_{2}, ..., \mathbf{x}_{N}-\boldsymbol{\mu}_{N}]^T \\
+
+\mathbf{K} &= \begin{bmatrix}
+\sigma_1^2 & 0 & \cdots & 0\\
+0 & \sigma_2^2 & \cdots & 0\\
+\vdots & \vdots & \ddots & 0\\
+0 & 0 & 0 & \sigma_N^2
+\end{bmatrix}
+\end{align*}</script><p>We have</p>
+<script type="math/tex; mode=display">
+\begin{align*}
+|\mathbf{K}|^{\frac{1}{2}} &= \sigma_1\sigma_2...\sigma_N \\
+
+(\mathbf{x}-\boldsymbol{\mu})^T\mathbf{K}^{-1}(\mathbf{x}-\boldsymbol{\mu}) &= \frac{(\mathbf{x}_{1}-\boldsymbol{\mu}_{1})^2}{\sigma_1^2} + \frac{(\mathbf{x}_{2}-\boldsymbol{\mu}_{2})^2}{\sigma_2^2} + ... + \frac{(\mathbf{x}_{N}-\boldsymbol{\mu}_{N})^2}{\sigma_N^2}
+\end{align*}</script><p>Thus</p>
+<script type="math/tex; mode=display">
+\begin{align*}
+p(\mathbf{x}) = (2\pi)^{-\frac{N}{2}}|\mathbf{K}|^{-\frac{1}{2}}\exp \left( -\frac{1}{2}(\mathbf{x}-\boldsymbol{\mu})^T\mathbf{K}^{-1}(\mathbf{x}-\boldsymbol{\mu}) \right) \tag{3}\label{eq3}
+\end{align*}</script><p>$\boldsymbol{\mu} \in \mathbb{R}^N$ is the mean vector, $\mathbf{K} \in \mathbb{R}^{N \times N}$ is the covariance matrix, since we assume that the dimensions are independent of each other, $\mathbf{K}$ is a diagonal matrix. When the variables are correlated, the form of Equation $(3)$ is still the same, the covariance matrix $\mathbf{K}$ is no longer a diagonal matrix and only has the properties of positive semi-definite and symmetric.</p>
+<p>Equation $(3)$ is usually abbreviated as:</p>
+<script type="math/tex; mode=display">
+\begin{align*}
+\mathbf{x} \sim \mathcal{N}(\boldsymbol{\mu}, \mathbf{K})
+\end{align*}</script><h2 id="Gaussian-Processes"><a href="#Gaussian-Processes" class="headerlink" title="Gaussian Processes"></a>Gaussian Processes</h2><p>A Gaussian process is a <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Stochastic_process">random process</a> where any point $\mathbf{x} = [\mathbf{x}<em>{1}, \mathbf{x}</em>{2}, \cdots, \mathbf{x}<em>{N}]$ is assigned a random variable $f(\mathbf{x}) = [f(\mathbf{x}</em>{1}), f(\mathbf{x}<em>{2}), \cdots, f(\mathbf{x}</em>{N})]$ and where the joint distribution of a finite number of these variables $p(f(\mathbf{x}_1),…,f(\mathbf{x}_N))$ is itself Gaussian:</p>
+<script type="math/tex; mode=display">p(\mathbf{f} \lvert \mathbf{X}) = \mathcal{N}(\mathbf{f} \lvert \boldsymbol\mu, \mathbf{K})\tag{4}\label{eq4}</script><p>In Equation $(4)$, <script type="math/tex">\mathbf{f} = (f(\mathbf{x}_1),...,f(\mathbf{x}_N))</script>, <script type="math/tex">\boldsymbol\mu = (m(\mathbf{x}_1),...,m(\mathbf{x}_N))</script> and <script type="math/tex">K_{ij} = \kappa(\mathbf{x}_i,\mathbf{x}_j)</script>. $m$ is the mean function and it is common to use $m(\mathbf{x}) = 0$ as GPs are flexible enough to model the mean arbitrarily well. $\kappa$ is a positive definite <em>kernel function</em> or <em>covariance function</em>. Thus, a Gaussian process is a distribution over functions whose shape (smoothness, …) is defined by $\mathbf{K}$. If points $\mathbf{x}_i$ and $\mathbf{x}_j$ are considered to be similar by the kernel the function values at these points, $f(\mathbf{x}_i)$ and $f(\mathbf{x}_j)$, can be expected to be similar too. </p>
+<p>A GP prior $p(\mathbf{f} \lvert \mathbf{X})$ can be converted into a GP posterior $p(\mathbf{f} \lvert \mathbf{X},\mathbf{y})$ after having observed some data $\mathbf{y}$. The posterior can then be used to make predictions <script type="math/tex">\mathbf{f}_*</script> given new input <script type="math/tex">\mathbf{X}_*</script>:</p>
+<script type="math/tex; mode=display">
+\begin{align*}
+p(\mathbf{f}_* \lvert \mathbf{X}_*,\mathbf{X},\mathbf{y}) 
+&= \int{p(\mathbf{f}_* \lvert \mathbf{X}_*,\mathbf{f})p(\mathbf{f} \lvert \mathbf{X},\mathbf{y})}\ d\mathbf{f} \\ 
+&= \mathcal{N}(\mathbf{f}_* \lvert \boldsymbol{\mu}_*, \boldsymbol{\Sigma}_*)\tag{5}\label{eq5}
+\end{align*}</script><p>Equation $(5)$ is the posterior predictive distribution which is also a Gaussian with mean <script type="math/tex">\boldsymbol{\mu}_*</script> and <script type="math/tex">\boldsymbol{\Sigma}_*</script>. By definition of the GP, the joint distribution of observed data $\mathbf{y}$ and predictions <script type="math/tex">\mathbf{f}_*</script>  is</p>
+<script type="math/tex; mode=display">
+\begin{bmatrix}\mathbf{y} \\ \mathbf{f}_*\end{bmatrix} \sim \mathcal{N}
+\left(\boldsymbol{0},
+\begin{bmatrix}\mathbf{K}_y & \mathbf{K}_* \\ \mathbf{K}_*^T & \mathbf{K}_{**}\end{bmatrix}
+\right)\tag{6}\label{eq6}</script><p>With $N$ training data and <script type="math/tex">N_*</script> new input data, <script type="math/tex">\mathbf{K}_y = \kappa(\mathbf{X},\mathbf{X}) + \sigma_y^2\mathbf{I} = \mathbf{K} + \sigma_y^2\mathbf{I}</script> is <script type="math/tex">N \times N</script>, <script type="math/tex">\mathbf{K}_* = \kappa(\mathbf{X},\mathbf{X}_*)</script> is <script type="math/tex">N \times N_*</script> and <script type="math/tex">\mathbf{K}_{**} = \kappa(\mathbf{X}_*,\mathbf{X}_*)</script> is <script type="math/tex">N_* \times N_*</script>. $\sigma<em>y^2$ is the noise term in the diagonal of $\mathbf{K_y}$. It is set to zero if training targets are noise-free and to a value greater than zero if observations are noisy. The mean is set to $\boldsymbol{0}$ for notational simplicity. The sufficient statistics of the posterior predictive distribution, $$\boldsymbol{\mu}</em><em><script type="math/tex">and</script>\boldsymbol{\Sigma}_</em>$$, can be computed with<sup>[1][3]</sup></p>
+<script type="math/tex; mode=display">
+\begin{align*}
+\boldsymbol{\mu_*} &= \mathbf{K}_*^T \mathbf{K}_y^{-1} \mathbf{y}\tag{7}\label{eq7} \\
+\boldsymbol{\Sigma_*} &= \mathbf{K}_{**} - \mathbf{K}_*^T \mathbf{K}_y^{-1} \mathbf{K}_*\tag{8}\label{eq8}
+\end{align*}</script><p>This is the minimum we need to know for implementing Gaussian processes and applying them to regression problems. For further details, please consult the literature in the <a href="#References">References</a> section. The next section shows how to implement GPs with plain NumPy from scratch, later sections demonstrate how to use GP implementations from <a target="_blank" rel="noopener" href="http://scikit-learn.org/stable/">scikit-learn</a>.</p>
+<h2 id="Implementation-with-NumPy"><a href="#Implementation-with-NumPy" class="headerlink" title="Implementation with NumPy"></a>Implementation with NumPy</h2><p>Here, we will use the squared exponential kernel, also known as Gaussian kernel or RBF kernel:</p>
+<script type="math/tex; mode=display">
+\kappa(\mathbf{x}_i,\mathbf{x}_j) = \sigma_f^2 \exp(-\frac{1}{2l^2}
+  (\mathbf{x}_i - \mathbf{x}_j)^T
+  (\mathbf{x}_i - \mathbf{x}_j))\tag{9}</script><p>The length parameter $l$ controls the smoothness of the function and $\sigma_f$ the vertical variation. For simplicity, we use the same length parameter $l$ for all input dimensions (isotropic kernel). </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">kernel</span>(<span class="params">X1, X2, l=<span class="number">1.0</span>, sigma_f=<span class="number">1.0</span></span>):</span></span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    Isotropic squared exponential kernel. Computes </span></span><br><span class="line"><span class="string">    a covariance matrix from points in X1 and X2.</span></span><br><span class="line"><span class="string">        </span></span><br><span class="line"><span class="string">    Args:</span></span><br><span class="line"><span class="string">        X1: Array of m points (m x d).</span></span><br><span class="line"><span class="string">        X2: Array of n points (n x d).</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    Returns:</span></span><br><span class="line"><span class="string">        Covariance matrix (m x n).</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line">    sqdist = np.<span class="built_in">sum</span>(X1**<span class="number">2</span>, <span class="number">1</span>).reshape(-<span class="number">1</span>, <span class="number">1</span>) + np.<span class="built_in">sum</span>(X2**<span class="number">2</span>, <span class="number">1</span>) - <span class="number">2</span> * np.dot(X1, X2.T)</span><br><span class="line">    <span class="keyword">return</span> sigma_f**<span class="number">2</span> * np.exp(-<span class="number">0.5</span> / l**<span class="number">2</span> * sqdist)</span><br></pre></td></tr></table></figure>
+<p>There are many other kernels that can be used for Gaussian processes. See [3] for a detailed reference or the scikit-learn documentation for <a target="_blank" rel="noopener" href="http://scikit-learn.org/stable/modules/gaussian_process.html#gp-kernels">some examples</a>.</p>
+<h3 id="Prior"><a href="#Prior" class="headerlink" title="Prior"></a>Prior</h3><p>Let’s first define a prior over functions with mean zero and a covariance matrix computed with kernel parameters $l=1$ and $\sigma_f=1$. To draw random functions from that GP we draw random samples from the corresponding multivariate normal. The following example draws ten random samples and plots it together with the zero mean and the 95% confidence interval (computed from the diagonal of the covariance matrix).</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"></span><br><span class="line"><span class="comment"># Finite number of points</span></span><br><span class="line">n = <span class="number">100</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># points we&#x27;re going to make predictions at</span></span><br><span class="line">X = np.linspace(-<span class="number">5</span>, <span class="number">5</span>, n).reshape(-<span class="number">1</span>, <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Mean and covariance of the prior</span></span><br><span class="line">mu_prior = np.zeros(X.shape)</span><br><span class="line">cov_prior = kernel(X, X)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Draw 10 samples from the prior</span></span><br><span class="line">number_of_samples = <span class="number">10</span></span><br><span class="line">samples_prior = np.random.multivariate_normal(mu_prior.ravel(), cov_prior, number_of_samples)</span><br><span class="line">plot_gp(mu_prior, cov_prior, X, samples=samples_prior)</span><br><span class="line">plt.title(<span class="string">f&#x27;<span class="subst">&#123;number_of_samples&#125;</span> samples from the GP prior (n = 100)&#x27;</span>)</span><br><span class="line">plt.axis([-<span class="number">5</span>, <span class="number">5</span>, -<span class="number">3</span>, <span class="number">3</span>])</span><br><span class="line">plt.legend()</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<div align="center">
+  <img src="https://i.loli.net/2020/10/11/1PCjDxdQRe5Z8AY.png">
+</div>
+
+<p><br></p>
+<p>The <code>plot_gp</code> function is defined here.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">plot_gp</span>(<span class="params">mu, cov, X, X_train=<span class="literal">None</span>, Y_train=<span class="literal">None</span>, samples=[]</span>):</span></span><br><span class="line">    plot_margin_of_error(X, mu, cov)</span><br><span class="line">    plt.plot(X, mu, label=<span class="string">&#x27;GP mean&#x27;</span>)</span><br><span class="line">    <span class="keyword">for</span> i, sample <span class="keyword">in</span> <span class="built_in">enumerate</span>(samples):</span><br><span class="line">        plt.plot(X, sample, lw=<span class="number">1</span>, ls=<span class="string">&#x27;--&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> X_train <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">        plt.plot(X_train, Y_train, <span class="string">&#x27;rx&#x27;</span>, label=<span class="string">&#x27;Observed Data&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<p><br></p>
+<p>The <code>plot_margin_of_error</code> function is defined here.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">plot_margin_of_error</span>(<span class="params">X, mu, cov</span>):</span></span><br><span class="line">    X = X.ravel()</span><br><span class="line">    mu = mu.ravel()</span><br><span class="line">    uncertainty = <span class="number">1.96</span> * np.sqrt(np.diag(cov))  <span class="comment"># %95 Confidence interval</span></span><br><span class="line">    plt.fill_between(X, mu + uncertainty, mu - uncertainty, alpha=<span class="number">0.1</span>,</span><br><span class="line">                     label=<span class="string">&#x27;Margin of error (%95 Confidence interval)&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="Prediction-from-noise-free-training-data"><a href="#Prediction-from-noise-free-training-data" class="headerlink" title="Prediction from noise-free training data"></a>Prediction from noise-free training data</h3><p>To compute the sufficient statistics i.e. mean and covariance of the posterior predictive distribution we implement Equations $(7)$ and $(8)$</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> numpy.linalg <span class="keyword">import</span> inv</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">posterior_predictive</span>(<span class="params">X_s, X_train, Y_train, l=<span class="number">1.0</span>, sigma_f=<span class="number">1.0</span>, sigma_y=<span class="number">1e-8</span></span>):</span></span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    Computes the sufficient statistics of the GP posterior predictive distribution</span></span><br><span class="line"><span class="string">    from m training data X_train and Y_train and n new inputs X_s.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    Args:</span></span><br><span class="line"><span class="string">        X_s: New input locations (n x d).</span></span><br><span class="line"><span class="string">        X_train: Training locations (m x d).</span></span><br><span class="line"><span class="string">        Y_train: Training targets (m x 1).</span></span><br><span class="line"><span class="string">        l: Kernel length parameter.</span></span><br><span class="line"><span class="string">        sigma_f: Kernel vertical variation parameter.</span></span><br><span class="line"><span class="string">        sigma_y: Noise parameter.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    Returns:</span></span><br><span class="line"><span class="string">        Posterior mean vector (n x d) and covariance matrix (n x n).</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line">    K = kernel(X_train, X_train, l, sigma_f) + sigma_y ** <span class="number">2</span> * np.eye(<span class="built_in">len</span>(X_train))</span><br><span class="line">    K_s = kernel(X_train, X_s, l, sigma_f)</span><br><span class="line">    K_ss = kernel(X_s, X_s, l, sigma_f) + <span class="number">1e-8</span> * np.eye(<span class="built_in">len</span>(X_s))</span><br><span class="line">    K_inv = inv(K)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Equation (7)</span></span><br><span class="line">    mu_s = K_s.T.dot(K_inv).dot(Y_train)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Equation (8)</span></span><br><span class="line">    cov_s = K_ss - K_s.T.dot(K_inv).dot(K_s)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> mu_s, cov_s</span><br></pre></td></tr></table></figure>
+<p>and apply them to noise-free training data <code>X_train</code> and <code>Y_train</code>. The following example draws ten samples from the posterior predictive and plots them along with the mean, confidence interval and training data. In a noise-free model, variance at the training points is zero and all random functions drawn from the posterior go through the trainig points. </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Noise free training data</span></span><br><span class="line">X_train = np.array([-<span class="number">3</span>, -<span class="number">2</span>, -<span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]).reshape(-<span class="number">1</span>, <span class="number">1</span>)</span><br><span class="line">Y_train_noise_free = np.sin(X_train)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Compute mean and covariance of the posterior predictive distribution</span></span><br><span class="line">mu_s, cov_s = posterior_predictive(X, X_train, Y_train_noise_free)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Draw 10 samples from the posterior</span></span><br><span class="line">samples_posterior = np.random.multivariate_normal(mu_s.ravel(), cov_s, number_of_samples)</span><br><span class="line"></span><br><span class="line">plot_gp(mu_s, cov_s, X, X_train=X_train, Y_train=Y_train_noise_free, samples=samples_posterior)</span><br><span class="line">plt.title(<span class="string">f&#x27;<span class="subst">&#123;number_of_samples&#125;</span> samples from the GP posterior (n = 100)&#x27;</span>)</span><br><span class="line">plt.axis([-<span class="number">5</span>, <span class="number">5</span>, -<span class="number">3</span>, <span class="number">3</span>])</span><br><span class="line">plt.legend()</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<div align="center">
+  <img src="https://i.loli.net/2020/10/11/apMiwYxU1S5bPTy.png">
+</div>
+
+<p><br></p>
+<p>Comparison of true function and GP posterior.<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">f_true = np.sin(X).flatten()</span><br><span class="line"></span><br><span class="line"><span class="comment"># Plot Gp mean</span></span><br><span class="line">plt.plot(X, mu_s, ls=<span class="string">&#x27;-&#x27;</span>, label=<span class="string">&#x27;GP mean&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Plot data observed</span></span><br><span class="line">plt.plot(X_train, Y_train_noise_free, <span class="string">&#x27;rx&#x27;</span>, label=<span class="string">&#x27;Observed Data&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Plot True function</span></span><br><span class="line">plt.plot(X, f_true, label=<span class="string">&#x27;True function&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Plot Margin of error (%95 Confidence interval)</span></span><br><span class="line">plot_margin_of_error(X, mu_s, cov_s)</span><br><span class="line">plt.axis([-<span class="number">5</span>, <span class="number">5</span>, -<span class="number">3</span>, <span class="number">3</span>])</span><br><span class="line">plt.legend()</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure></p>
+<table>
+    <tr>
+        <td ><img src="https://i.loli.net/2020/10/11/apMiwYxU1S5bPTy.png"></td>
+        <td ><img src="https://i.loli.net/2020/10/11/snN5p8c4a213AtR.png"></td>
+    </tr>
+</table>
+
+<h3 id="Prediction-from-noisy-training-data"><a href="#Prediction-from-noisy-training-data" class="headerlink" title="Prediction from noisy training data"></a>Prediction from noisy training data</h3><p>If some noise is included in the model, training points are only approximated and the variance at the training points is non-zero.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Noisy training data</span></span><br><span class="line">noise = <span class="number">0.4</span></span><br><span class="line">X_train = np.array([-<span class="number">3</span>, -<span class="number">2</span>, -<span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]).reshape(-<span class="number">1</span>, <span class="number">1</span>)</span><br><span class="line">Y_train_noisy = np.sin(X_train) + noise * np.random.randn(*X_train.shape)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Compute mean and covariance of the posterior predictive distribution</span></span><br><span class="line">mu_s, cov_s = posterior_predictive(X, X_train, Y_train_noisy, sigma_y=noise)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Draw 10 samples from the posterior</span></span><br><span class="line">samples_posterior_noisy = np.random.multivariate_normal(mu_s.ravel(), cov_s, number_of_samples)</span><br><span class="line">plot_gp(mu_s, cov_s, X, X_train=X_train, Y_train=Y_train_noisy, samples=samples_posterior_noisy)</span><br><span class="line">plt.title(<span class="string">f&#x27;<span class="subst">&#123;number_of_samples&#125;</span> samples from the GP posterior (n = 100)&#x27;</span>)</span><br><span class="line">plt.axis([-<span class="number">5</span>, <span class="number">5</span>, -<span class="number">3</span>, <span class="number">3</span>])</span><br><span class="line">plt.legend()</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<div align="center">
+  <img src="https://i.loli.net/2020/10/11/JTyoUWwkn8vgDKH.png">
+</div>
+
+<p><br></p>
+<p>Comparison of true function and GP posterior.<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">f_true = np.sin(X).flatten()</span><br><span class="line"></span><br><span class="line"><span class="comment"># Plot Gp mean</span></span><br><span class="line">plt.plot(X, mu_s, ls=<span class="string">&#x27;-&#x27;</span>, label=<span class="string">&#x27;GP mean&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Plot data observed</span></span><br><span class="line">plt.plot(X_train, Y_train_noisy, <span class="string">&#x27;rx&#x27;</span>, label=<span class="string">&#x27;Observed Data&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Plot True function</span></span><br><span class="line">plt.plot(X, f_true, label=<span class="string">&#x27;True function&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Plot Margin of error (%95 Confidence interval)</span></span><br><span class="line">plot_margin_of_error(X, mu_s, cov_s)</span><br><span class="line">plt.axis([-<span class="number">5</span>, <span class="number">5</span>, -<span class="number">3</span>, <span class="number">3</span>])</span><br><span class="line">plt.legend()</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure></p>
+<table>
+    <tr>
+        <td ><img src="https://i.loli.net/2020/10/11/JTyoUWwkn8vgDKH.png"></td>
+        <td ><img src="https://i.loli.net/2020/10/11/C9daYNwu4M5W2rq.png"></td>
+    </tr>
+</table>
+
+<h3 id="Effect-of-kernel-parameters-and-noise-parameter"><a href="#Effect-of-kernel-parameters-and-noise-parameter" class="headerlink" title="Effect of kernel parameters and noise parameter"></a>Effect of kernel parameters and noise parameter</h3><p>The following example shows the effect of kernel parameters $l$ and $\sigma_f$ as well as the noise parameter $\sigma_y$. Higher $l$ values lead to smoother functions and therefore to coarser approximations of the training data. Lower $l$ values make functions more wiggly with wide confidence intervals between training data points. $\sigma_f$ controls the vertical variation of functions drawn from the GP. This can be seen by the wide confidence intervals outside the training data region in the right figure of the second row. $\sigma_y$ represents the amount of noise in the training data. Higher $\sigma_y$ values make more coarse approximations which avoids overfitting to noisy data.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">params = [</span><br><span class="line">    (<span class="number">0.3</span>, <span class="number">1.0</span>, <span class="number">0.2</span>),</span><br><span class="line">    (<span class="number">3.0</span>, <span class="number">1.0</span>, <span class="number">0.2</span>),</span><br><span class="line">    (<span class="number">1.0</span>, <span class="number">0.3</span>, <span class="number">0.2</span>),</span><br><span class="line">    (<span class="number">1.0</span>, <span class="number">3.0</span>, <span class="number">0.2</span>),</span><br><span class="line">    (<span class="number">1.0</span>, <span class="number">1.0</span>, <span class="number">0.05</span>),</span><br><span class="line">    (<span class="number">1.0</span>, <span class="number">1.0</span>, <span class="number">1.5</span>),</span><br><span class="line">]</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i, (l, sigma_f, sigma_y) <span class="keyword">in</span> <span class="built_in">enumerate</span>(params):</span><br><span class="line">    mu_s, cov_s = posterior_predictive(X, X_train, Y_train_noisy, l=l,</span><br><span class="line">                                       sigma_f=sigma_f,</span><br><span class="line">                                       sigma_y=sigma_y)</span><br><span class="line">    plt.title(<span class="string">f&#x27;l = <span class="subst">&#123;l&#125;</span>, sigma_f = <span class="subst">&#123;sigma_f&#125;</span>, sigma_y = <span class="subst">&#123;sigma_y&#125;</span>&#x27;</span>)</span><br><span class="line">    plot_gp(mu_s, cov_s, X, X_train=X_train, Y_train=Y_train_noisy)</span><br><span class="line">    plt.axis([-<span class="number">5</span>, <span class="number">5</span>, -<span class="number">3</span>, <span class="number">3</span>])</span><br><span class="line">    plt.show()</span><br></pre></td></tr></table></figure>
+<table>
+    <tr>
+        <td ><img src="https://i.loli.net/2020/10/11/BRNfYlsPL3J2Imx.png"></td>
+        <td ><img src="https://i.loli.net/2020/10/11/3OCpPnfbsBI9d8K.png"></td>
+    </tr>
+</table>
+<table>
+    <tr>
+        <td ><img src="https://i.loli.net/2020/10/11/aqxECbszmH5J7VN.png"></td>
+        <td ><img src="https://i.loli.net/2020/10/11/ONlIuoDvdei4s9W.png"></td>
+    </tr>
+</table>
+<table>
+    <tr>
+        <td ><img src="https://i.loli.net/2020/10/11/IMFoX2O56sHeZJz.png"></td>
+        <td ><img src="https://i.loli.net/2020/10/11/5CNWtifgTPEUaIw.png"></td>
+    </tr>
+</table>
+
+<p><br></p>
+<p>Optimal values for these parameters can be estimated by maximizing the log marginal likelihood which is given by<sup>[1][3]</sup></p>
+<script type="math/tex; mode=display">
+\begin{align*}
+\log p(\mathbf{y} \lvert \mathbf{X}) 
+&=\log \mathcal{N}(\mathbf{y} \lvert \boldsymbol{0},\mathbf{K}_y) \\
+&=-\frac{1}{2} \mathbf{y}^T \mathbf{K}_y^{-1} \mathbf{y} 
+-\frac{1}{2} \log \begin{vmatrix}\mathbf{K}_y\end{vmatrix} 
+-\frac{N}{2} \log(2\pi) \tag{10}
+\end{align*}</script><p>In the following we will minimize the negative log marginal likelihood w.r.t. parameters $l$ and $\sigma_f$, $\sigma_y$ is set to the known noise level of the data. If the noise level is unknown, $\sigma_y$ can be estimated as well along with the other parameters. </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> numpy.linalg <span class="keyword">import</span> cholesky, det, lstsq</span><br><span class="line"><span class="keyword">from</span> scipy.optimize <span class="keyword">import</span> minimize</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">nll_fn</span>(<span class="params">X_train, Y_train, noise, naive=<span class="literal">True</span></span>):</span></span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    Returns a function that computes the negative log marginal</span></span><br><span class="line"><span class="string">    likelihood for training data X_train and Y_train and given</span></span><br><span class="line"><span class="string">    noise level.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    Args:</span></span><br><span class="line"><span class="string">        X_train: training locations (m x d).</span></span><br><span class="line"><span class="string">        Y_train: training targets (m x 1).</span></span><br><span class="line"><span class="string">        noise: known noise level of Y_train.</span></span><br><span class="line"><span class="string">        naive: if True use a naive implementation of Eq. (10), if</span></span><br><span class="line"><span class="string">               False use a numerically more stable implementation.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    Returns:</span></span><br><span class="line"><span class="string">        Minimization objective.</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">nll_naive</span>(<span class="params">theta</span>):</span></span><br><span class="line">        <span class="comment"># Naive implementation of Eq. (10). Works well for the examples</span></span><br><span class="line">        <span class="comment"># in this article but is numerically less stable compared to</span></span><br><span class="line">        <span class="comment"># the implementation in nll_stable below.</span></span><br><span class="line">        K = kernel(X_train, X_train, l=theta[<span class="number">0</span>], sigma_f=theta[<span class="number">1</span>]) + \</span><br><span class="line">            noise ** <span class="number">2</span> * np.eye(<span class="built_in">len</span>(X_train))</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0.5</span> * np.log(det(K)) + \</span><br><span class="line">               <span class="number">0.5</span> * Y_train.T.dot(inv(K).dot(Y_train)) + \</span><br><span class="line">               <span class="number">0.5</span> * <span class="built_in">len</span>(X_train) * np.log(<span class="number">2</span> * np.pi)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">nll_stable</span>(<span class="params">theta</span>):</span></span><br><span class="line">        <span class="comment"># Numerically more stable implementation of Eq. (10) as described</span></span><br><span class="line">        <span class="comment"># in http://www.gaussianprocess.org/gpml/chapters/RW2.pdf, Section</span></span><br><span class="line">        <span class="comment"># 2.2, Algorithm 2.1.</span></span><br><span class="line">        K = kernel(X_train, X_train, l=theta[<span class="number">0</span>], sigma_f=theta[<span class="number">1</span>]) + \</span><br><span class="line">            noise ** <span class="number">2</span> * np.eye(<span class="built_in">len</span>(X_train))</span><br><span class="line">        L = cholesky(K)</span><br><span class="line">        <span class="keyword">return</span> np.<span class="built_in">sum</span>(np.log(np.diagonal(L))) + \</span><br><span class="line">               <span class="number">0.5</span> * Y_train.T.dot(lstsq(L.T, lstsq(L, Y_train)[<span class="number">0</span>])[<span class="number">0</span>]) + \</span><br><span class="line">               <span class="number">0.5</span> * <span class="built_in">len</span>(X_train) * np.log(<span class="number">2</span> * np.pi)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> naive:</span><br><span class="line">        <span class="keyword">return</span> nll_naive</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> nll_stable</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># Minimize the negative log-likelihood w.r.t. parameters l and sigma_f.</span></span><br><span class="line"><span class="comment"># We should actually run the minimization several times with different</span></span><br><span class="line"><span class="comment"># initializations to avoid local minimal but this is skipped here for</span></span><br><span class="line"><span class="comment"># simplicity.</span></span><br><span class="line">res = minimize(nll_fn(X_train, Y_train_noisy, noise), [<span class="number">1</span>, <span class="number">1</span>],</span><br><span class="line">               bounds=((<span class="number">1e-5</span>, <span class="literal">None</span>), (<span class="number">1e-5</span>, <span class="literal">None</span>)),</span><br><span class="line">               method=<span class="string">&#x27;L-BFGS-B&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Store the optimization results in global variables so that we can</span></span><br><span class="line"><span class="comment"># compare it later with the results from other implementations.</span></span><br><span class="line">l_opt, sigma_f_opt = res.x</span><br><span class="line">l_opt, sigma_f_opt</span><br><span class="line"></span><br><span class="line"><span class="comment"># Compute the posterior predictive statistics with optimized kernel parameters and plot the results</span></span><br><span class="line">mu_s, cov_s = posterior_predictive(X, X_train, Y_train_noisy, l=l_opt, sigma_f=sigma_f_opt, sigma_y=noise)</span><br><span class="line">plot_gp(mu_s, cov_s, X, X_train=X_train, Y_train=Y_train_noisy)</span><br><span class="line">plt.axis([-<span class="number">5</span>, <span class="number">5</span>, -<span class="number">3</span>, <span class="number">3</span>])</span><br><span class="line">plt.title(<span class="string">f&#x27;After parameter optimization:l = <span class="subst">&#123;l_opt:<span class="number">.2</span>f&#125;</span>, sigma_f = <span class="subst">&#123;sigma_f_opt:<span class="number">.2</span>f&#125;</span>, sigma_y = <span class="subst">&#123;noise&#125;</span>&#x27;</span>)</span><br><span class="line">plt.legend()</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<div align="center">
+  <img src="https://i.loli.net/2020/10/11/bipGWgtfJeFOKrR.png">
+</div>
+
+<p><br></p>
+<p>With optimized kernel parameters, training data are reasonably covered by the 95% confidence interval and the mean of the posterior predictive is a good approximation.</p>
+<h3 id="Higher-dimensions"><a href="#Higher-dimensions" class="headerlink" title="Higher dimensions"></a>Higher dimensions</h3><p>The above implementation can also be used for higher input data dimensions. Here, a GP is used to fit noisy samples from a sine wave originating at $\boldsymbol{0}$ and expanding in the x-y plane. The following plots show the noisy samples and the posterior predictive mean before and after kernel parameter optimization.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> matplotlib <span class="keyword">import</span> cm</span><br><span class="line"><span class="keyword">from</span> mpl_toolkits.mplot3d <span class="keyword">import</span> Axes3D</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">plot_gp_2D</span>(<span class="params">gx, gy, mu, X_train, Y_train, title, i</span>):</span></span><br><span class="line">    ax = plt.gcf().add_subplot(<span class="number">1</span>, <span class="number">2</span>, i, projection=<span class="string">&#x27;3d&#x27;</span>)</span><br><span class="line">    ax.plot_surface(gx, gy, mu.reshape(gx.shape), cmap=cm.coolwarm, linewidth=<span class="number">0</span>, alpha=<span class="number">0.2</span>, antialiased=<span class="literal">False</span>)</span><br><span class="line">    ax.scatter(X_train[:, <span class="number">0</span>], X_train[:, <span class="number">1</span>], Y_train, c=Y_train, cmap=cm.coolwarm)</span><br><span class="line">    z = mu.reshape(gx.shape)</span><br><span class="line">    ax.contourf(gx, gy, z, zdir=<span class="string">&#x27;z&#x27;</span>, offset=<span class="number">0</span>, cmap=cm.coolwarm, alpha=<span class="number">0.6</span>)</span><br><span class="line">    ax.set_title(title)</span><br><span class="line"></span><br><span class="line">noise_2D = <span class="number">0.1</span></span><br><span class="line"></span><br><span class="line">rx, ry = np.arange(-<span class="number">5</span>, <span class="number">5</span>, <span class="number">0.3</span>), np.arange(-<span class="number">5</span>, <span class="number">5</span>, <span class="number">0.3</span>)</span><br><span class="line">gx, gy = np.meshgrid(rx, rx)</span><br><span class="line"></span><br><span class="line">X_2D = np.c_[gx.ravel(), gy.ravel()]</span><br><span class="line"></span><br><span class="line">X_2D_train = np.random.uniform(-<span class="number">4</span>, <span class="number">4</span>, (<span class="number">100</span>, <span class="number">2</span>))</span><br><span class="line">Y_2D_train = np.sin(<span class="number">0.5</span> * np.linalg.norm(X_2D_train, axis=<span class="number">1</span>)) + \</span><br><span class="line">             noise_2D * np.random.randn(<span class="built_in">len</span>(X_2D_train))</span><br><span class="line"></span><br><span class="line">plt.figure(figsize=(<span class="number">14</span>, <span class="number">7</span>))</span><br><span class="line"></span><br><span class="line">mu_s, _ = posterior_predictive(X_2D, X_2D_train, Y_2D_train, sigma_y=noise_2D)</span><br><span class="line">plot_gp_2D(gx, gy, mu_s, X_2D_train, Y_2D_train,</span><br><span class="line">           <span class="string">f&#x27;Before parameter optimization: l=<span class="subst">&#123;<span class="number">1.00</span>&#125;</span> sigma_f=<span class="subst">&#123;<span class="number">1.00</span>&#125;</span>&#x27;</span>, <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">res = minimize(nll_fn(X_2D_train, Y_2D_train, noise_2D), [<span class="number">1</span>, <span class="number">1</span>],</span><br><span class="line">               bounds=((<span class="number">1e-5</span>, <span class="literal">None</span>), (<span class="number">1e-5</span>, <span class="literal">None</span>)),</span><br><span class="line">               method=<span class="string">&#x27;L-BFGS-B&#x27;</span>)</span><br><span class="line"></span><br><span class="line">mu_s, _ = posterior_predictive(X_2D, X_2D_train, Y_2D_train, *res.x, sigma_y=noise_2D)</span><br><span class="line">plot_gp_2D(gx, gy, mu_s, X_2D_train, Y_2D_train,</span><br><span class="line">           <span class="string">f&#x27;After parameter optimization: l=<span class="subst">&#123;res.x[<span class="number">0</span>]:<span class="number">.2</span>f&#125;</span> sigma_f=<span class="subst">&#123;res.x[<span class="number">1</span>]:<span class="number">.2</span>f&#125;</span>&#x27;</span>, <span class="number">2</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<div align="center">
+  <img src="https://i.loli.net/2020/11/15/b5r4B6mWYzeqhOK.png">
+</div>
+
+<p><br></p>
+<p>Note how the true sine wave is approximated much better after parameter optimization.</p>
+<h2 id="Library-that-implement-GPs"><a href="#Library-that-implement-GPs" class="headerlink" title="Library that implement GPs"></a>Library that implement GPs</h2><p>This section shows a example of library that provide implementation of GPs. Only a minimal setup will be provided here, just enough for reproducing the above results. For further details please consult the documentation of the library.</p>
+<h3 id="Scikit-learn"><a href="#Scikit-learn" class="headerlink" title="Scikit-learn"></a>Scikit-learn</h3><p>Scikit-learn provides a <code>GaussianProcessRegressor</code> for implementing <a target="_blank" rel="noopener" href="http://scikit-learn.org/stable/modules/gaussian_process.html#gaussian-process-regression-gpr">GP regression models</a>. It can be configured with <a target="_blank" rel="noopener" href="http://scikit-learn.org/stable/modules/gaussian_process.html#gp-kernels">pre-defined kernels and user-defined kernels</a>. Kernels can also be composed. The squared exponential kernel is the <code>RBF</code> kernel in scikit-learn. The <code>RBF</code> kernel only has a <code>length_scale</code> parameter which corresponds to the $l$ parameter above. To have a $\sigma_f$ parameter as well, we have to compose the <code>RBF</code> kernel with a <code>ConstantKernel</code>.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.gaussian_process <span class="keyword">import</span> GaussianProcessRegressor</span><br><span class="line"><span class="keyword">from</span> sklearn.gaussian_process.kernels <span class="keyword">import</span> ConstantKernel, RBF</span><br><span class="line"></span><br><span class="line">rbf = ConstantKernel(<span class="number">1.0</span>) * RBF(length_scale=<span class="number">1.0</span>)</span><br><span class="line">gpr = GaussianProcessRegressor(kernel=rbf, alpha=noise**<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Reuse training data from previous 1D example</span></span><br><span class="line">gpr.fit(X_train, Y_train)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Compute posterior predictive mean and covariance</span></span><br><span class="line">mu_s, cov_s = gpr.predict(X, return_cov=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Obtain optimized kernel parameters</span></span><br><span class="line">l = gpr.kernel_.k2.get_params()[<span class="string">&#x27;length_scale&#x27;</span>]</span><br><span class="line">sigma_f = np.sqrt(gpr.kernel_.k1.get_params()[<span class="string">&#x27;constant_value&#x27;</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># Compare with previous results</span></span><br><span class="line"><span class="keyword">assert</span>(np.isclose(l_opt, l))</span><br><span class="line"><span class="keyword">assert</span>(np.isclose(sigma_f_opt, sigma_f))</span><br><span class="line"></span><br><span class="line"><span class="comment"># Plot the results</span></span><br><span class="line">plot_gp(mu_s, cov_s, X, X_train=X_train, Y_train=Y_train)</span><br></pre></td></tr></table></figure>
+<div align="center">
+  <img src="https://i.loli.net/2020/10/11/RhfyaLoGKF3u7Vb.png">
+</div>
+
+<p><br></p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p>[1] Kevin P. Murphy. <a target="_blank" rel="noopener" href="https://mitpress.mit.edu/books/machine-learning-0">Machine Learning, A Probabilistic Perspective</a>, Chapters 4, 14 and 15.<br>[2] Christopher M. Bishop. <a target="_blank" rel="noopener" href="http://www.springer.com/de/book/9780387310732">Pattern Recognition and Machine Learning</a>, Chapter 6.<br>[3] Carl Edward Rasmussen and Christopher K. I. Williams. <a target="_blank" rel="noopener" href="http://www.gaussianprocess.org/gpml/">Gaussian Processes for Machine Learning</a>.<br>[4] Guibo Wang. <a target="_blank" rel="noopener" href="https://borgwang.github.io/ml/2019/07/28/gaussian-processes.html">Gaussian processes</a>.<br>[5] Martin Krasser. <a target="_blank" rel="noopener" href="https://krasserm.github.io/2018/03/19/gaussian-processes/">Gaussian processes</a>.</p>
+
+      
+    </div>
+    <div class="article-footer">
+      <!-- 
+<blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="https://siqindong.com/2020/11/14/Gaussian-Processes/" title="Gaussian Processes" target="_blank" rel="external">https://siqindong.com/2020/11/14/Gaussian-Processes/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+-->
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/siqindong" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/moon.png" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/siqindong" target="_blank"><span class="text-dark">Siqin Dong</span><small class="ml-1x">Student</small></a></h3>
+        <div>Mechanical Engineering</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      </div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2020/12/16/Kalman-Filter/" title="Kalman Filter"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Next Post</span></a>
+    </li>
+    
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn   collapsed  " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="Catalogue" role="button">    <span>[&nbsp;</span><span>Catalogue</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+    <div class="share-component" data-sites="wechat,facebook,twitter" data-mobile-sites="wechat,facebook,twitter"></div>
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/siqindong" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="https://www.linkedin.com/in/siqin-dong-3307a4138" target="_blank" title="Linkedin" data-toggle=tooltip data-placement=top><i class="icon icon-linkedin"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        &copy; 2022 Siqin Dong
+        
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+
+
+   
+    
+    <script defer>
+    var disqus_config = function () {
+        
+            this.page.url = 'https://siqindong.com/2020/11/14/Gaussian-Processes/';
+        
+        this.page.identifier = 'Gaussian-Processes';
+    };
+    (function() { 
+        var d = document, s = d.createElement('script');  
+        s.src = '//' + 'siqindong' + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+
+
+
+
+  <script src="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.3.5/dist/jquery.fancybox.min.js"></script>
+  <script>
+  //利用 FancyBox 实现点击图片放大
+  $(document).ready(function() {
+    $('article img').not('[hidden]').not('.panel-body img').each(function() {
+      var $image = $(this);
+      var imageCaption = $image.attr('alt');
+      var $imageWrapLink = $image.parent('a');
+      if ($imageWrapLink.length < 1) {
+        var src = this.getAttribute('src');
+        var idx = src.lastIndexOf('?');
+        if (idx != -1) {
+          src = src.substring(0, idx);
+        }
+        $imageWrapLink = $image.wrap('<a href="' + src + '"></a>').parent('a');
+      }
+      $imageWrapLink.attr('data-fancybox', 'images');
+      if (imageCaption) {
+        $imageWrapLink.attr('data-caption', imageCaption);
+      }
+    });
+    $().fancybox({
+      selector: '[data-fancybox="images"]',
+      hash: false,
+      loop: false,
+    });
+  });
+  </script>
+
+
+
+
+
+
+<div id="go-top"></div>
+
+<style type="text/css">
+#go-top {
+ width:40px;height:36px;
+ background-color:#777;
+ position:relative;
+ border-radius:2px;
+ position:fixed;right:10px;bottom:60px;
+ cursor:pointer;display:none;
+}
+#go-top:after {
+ content:" ";
+ position:absolute;left:14px;top:14px;
+ border-top:2px solid #fff;border-right:2px solid #fff;
+ width:12px;height:12px;
+ transform:rotate(-45deg);
+}
+#go-top:hover {
+ background-color:#333;
+}
+</style>
+
+<script>
+$(function () {
+  var top=$("#go-top");
+  $(window).scroll(function () {
+    ($(window).scrollTop() > 300) ? top.show(300) : top.hide(200);
+    $("#go-top").click(function () {
+      $('body,html').animate({scrollTop:0});
+      return false();
+    })
+  });
+});
+</script>
+  
+  <style>
+    .copy-btn {
+      display: inline-block;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 20px;
+      color: #333;
+      white-space: nowrap;
+      vertical-align: middle;
+      cursor: pointer;
+      background-color: #eee;
+      background-image: linear-gradient(#fcfcfc, #eee);
+      border: 1px solid #d5d5d5;
+      border-radius: 3px;
+      user-select: none;
+      outline: 0;
+    }
+
+    .highlight-wrap .copy-btn {
+      transition: opacity .3s ease-in-out;
+      opacity: 0;
+      padding: 2px 6px;
+      position: absolute;
+      right: 3px;
+      top: 3px;
+      z-index: 2;
+    }
+
+    .highlight-wrap:hover .copy-btn,
+        .highlight-wrap .copy-btn:focus {
+      opacity: 1
+    }
+
+    .highlight-wrap {
+      position: relative;
+    }
+  </style>
+
+  <script>
+    addLoadEvent(()=>{
+      $('.highlight').each(function (i, e) {
+        var $wrap = $('<div>').addClass('highlight-wrap')
+        $(e).after($wrap)
+        $wrap.append($('<button>').addClass('copy-btn').append('Copy').on('click', function (e) {
+          var code = $(this).parent().find(".code")[0].innerText
+          
+          var ta = document.createElement('textarea')
+          document.body.appendChild(ta)
+          ta.style.position = 'absolute'
+          ta.style.top = '0px'
+          ta.style.left = '0px'
+          ta.value = code
+          ta.select()
+          ta.focus()
+          var result = document.execCommand('copy')
+          document.body.removeChild(ta)
+          
+            if(result)$(this).text('Copied')
+            else $(this).text('Copy failed')
+          
+          $(this).blur()
+        })).on('mouseleave', function (e) {
+          var $b = $(this).find('.copy-btn')
+          setTimeout(function () {
+            $b.text('Copy')
+          }, 300)
+        }).append(e)
+      })
+    })
+  </script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
+</html>

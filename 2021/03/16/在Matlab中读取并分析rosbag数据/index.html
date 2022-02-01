@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>在Matlab中读取并分析rosbag数据 | Siqin Dong</title>
+  <meta name="description" content="我最近在用Sawyer机器人做实验，用rosbag记录了机器人状态数据，后续要进行可视化和分析，虽然ROS内置rqt_plot有绘图功能，但是rqt_plot的功能比较简单，数据量大的时候查看起来也比较麻烦，还是导入进Matlab分析更好一些。 Matlab可以直接读取rosbag数据，对于ROS自带的topic信息，比如 &#x2F;joint_states 和 &#x2F;cmd_vel，用Matlab读取很方便">
+<meta property="og:type" content="article">
+<meta property="og:title" content="在Matlab中读取并分析rosbag数据">
+<meta property="og:url" content="https://siqindong.com/2021/03/16/%E5%9C%A8Matlab%E4%B8%AD%E8%AF%BB%E5%8F%96%E5%B9%B6%E5%88%86%E6%9E%90rosbag%E6%95%B0%E6%8D%AE/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="我最近在用Sawyer机器人做实验，用rosbag记录了机器人状态数据，后续要进行可视化和分析，虽然ROS内置rqt_plot有绘图功能，但是rqt_plot的功能比较简单，数据量大的时候查看起来也比较麻烦，还是导入进Matlab分析更好一些。 Matlab可以直接读取rosbag数据，对于ROS自带的topic信息，比如 &#x2F;joint_states 和 &#x2F;cmd_vel，用Matlab读取很方便">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://i.loli.net/2021/03/19/FzMK1Ti5OWZu2GU.png">
+<meta property="og:image" content="https://i.loli.net/2021/03/19/EzVb4ont9sLUau3.png">
+<meta property="og:image" content="https://i.loli.net/2021/03/19/VIhJt6PTBy3pNGu.png">
+<meta property="og:image" content="https://i.loli.net/2021/03/19/IQ4mFVNbCzwe7Ec.png">
+<meta property="og:image" content="https://i.loli.net/2021/03/19/ksNwmJIxejdYK1M.png">
+<meta property="og:image" content="https://i.loli.net/2021/03/19/HVjASKOoIXfeGu7.png">
+<meta property="og:image" content="https://i.loli.net/2021/03/20/2fp6LK8x91ejvQS.png">
+<meta property="og:image" content="https://i.loli.net/2021/03/20/yqz1XCEvHu8SYAo.png">
+<meta property="og:image" content="https://i.loli.net/2021/03/20/lP6jR7zKhexfXWT.png">
+<meta property="og:image" content="https://i.loli.net/2021/03/20/w9gryYWqEd35F6p.png">
+<meta property="og:image" content="https://i.loli.net/2021/03/20/uZ7fEtqQAjykDcS.gif">
+<meta property="article:published_time" content="2021-03-17T01:09:58.000Z">
+<meta property="article:modified_time" content="2022-02-01T20:21:57.236Z">
+<meta property="article:author" content="Siqin Dong">
+<meta property="article:tag" content="ROS">
+<meta property="article:tag" content="Matlab">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2021/03/19/FzMK1Ti5OWZu2GU.png">
+  <!-- Canonical links -->
+  <link rel="canonical" href="https://siqindong.com/2021/03/16/%E5%9C%A8Matlab%E4%B8%AD%E8%AF%BB%E5%8F%96%E5%B9%B6%E5%88%86%E6%9E%90rosbag%E6%95%B0%E6%8D%AE/index.html">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+    <link href="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.3.5/dist/jquery.fancybox.min.css" rel="stylesheet">
+  
+  
+<meta name="generator" content="Hexo 6.0.0"></head>
+
+
+<body class="main-center" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/siqindong" target="_blank">
+          <img class="img-circle img-rotate" src="/images/moon.png" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">Siqin Dong</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Student</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Virginia, United States</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">Repository</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-links">
+          <a href="/links">
+            
+            <i class="icon icon-friendship"></i>
+            
+            <span class="menu-title">Links</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">About</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/siqindong" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="https://www.linkedin.com/in/siqin-dong-3307a4138" target="_blank" title="Linkedin" data-toggle=tooltip data-placement=top><i class="icon icon-linkedin"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>Welcome to my blog!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithm/">Algorithm</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Tutorial/">Tutorial</a><span class="category-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Matlab/" rel="tag">Matlab</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ROS/" rel="tag">ROS</a><span class="tag-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Matlab/" style="font-size: 13px;">Matlab</a> <a href="/tags/ROS/" style="font-size: 13px;">ROS</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">March 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2021/10/20/Fourier-Transform/" class="title">Fourier Transform</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2021-10-20T23:49:46.000Z" itemprop="datePublished">10-20-2021</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Tutorial/">Tutorial</a>
+              </p>
+              <p class="item-title">
+                <a href="/2021/03/16/%E5%9C%A8Matlab%E4%B8%AD%E8%AF%BB%E5%8F%96%E5%B9%B6%E5%88%86%E6%9E%90rosbag%E6%95%B0%E6%8D%AE/" class="title">在Matlab中读取并分析rosbag数据</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2021-03-17T01:09:58.000Z" itemprop="datePublished">03-16-2021</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Tutorial/">Tutorial</a>
+              </p>
+              <p class="item-title">
+                <a href="/2021/03/16/Read-and-analyze-rosbag-data-in-Matlab/" class="title">Read and analyze rosbag data in Matlab</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2021-03-17T01:09:58.000Z" itemprop="datePublished">03-16-2021</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Algorithm/">Algorithm</a>
+              </p>
+              <p class="item-title">
+                <a href="/2020/12/16/Kalman-Filter/" class="title">Kalman Filter</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2020-12-17T01:28:37.000Z" itemprop="datePublished">12-16-2020</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2020/11/14/Gaussian-Processes/" class="title">Gaussian Processes</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2020-11-14T05:11:14.000Z" itemprop="datePublished">11-14-2020</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-在Matlab中读取并分析rosbag数据" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      在Matlab中读取并分析rosbag数据
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2021/03/16/%E5%9C%A8Matlab%E4%B8%AD%E8%AF%BB%E5%8F%96%E5%B9%B6%E5%88%86%E6%9E%90rosbag%E6%95%B0%E6%8D%AE/" class="article-date">
+	  <time datetime="2021-03-17T01:09:58.000Z" itemprop="datePublished">03-16-2021</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/Tutorial/">Tutorial</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link-link" href="/tags/Matlab/" rel="tag">Matlab</a>, <a class="article-tag-link-link" href="/tags/ROS/" rel="tag">ROS</a>
+  </span>
+
+
+        
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2021/03/16/%E5%9C%A8Matlab%E4%B8%AD%E8%AF%BB%E5%8F%96%E5%B9%B6%E5%88%86%E6%9E%90rosbag%E6%95%B0%E6%8D%AE/#comments" class="article-comment-link">Comments</a></span>
+        
+	
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">Words: 2.5k(words)</span>
+	
+	
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">Reading time: 11(mins)</span>
+	
+
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <p>我最近在用Sawyer机器人做实验，用<code>rosbag</code>记录了机器人状态数据，后续要进行可视化和分析，虽然ROS内置<code>rqt_plot</code>有绘图功能，但是<code>rqt_plot</code>的功能比较简单，数据量大的时候查看起来也比较麻烦，还是导入进Matlab分析更好一些。</p>
+<p>Matlab可以直接读取rosbag数据，对于ROS自带的topic信息，比如 <code>/joint_states</code> 和 <code>/cmd_vel</code>，用Matlab读取很方便。但是对于使用了自定义的message类型的topic，需要重新编译存放msg文件的ROS package，这一步骤在Matlab中使用<a target="_blank" rel="noopener" href="https://www.mathworks.com/help/ros/ref/rosgenmsg.html"><code>rosgenmsg</code></a>命令完成，借助Matlab的java接口，Matlab就能识别自定义的message了。</p>
+<p>我的Matlab版本是R2021a，需要注意的是在R2020b版本中Matlab对ROS功能的支持做了很大改动，<code>rosgenmsg</code> 直接包含在了toolbox中（不需要额外的support package)，网上有的教程写需要通过<code>roboticsAddons</code>命令安装插件，应该用的是R2020b之前的Matlab版本。以后可以直接看这份官方文档：<a target="_blank" rel="noopener" href="https://www.mathworks.com/help/ros/ug/ros-custom-message-support.html">ROS Custom Message Support</a>，具体操作跟着文档走即可，这里主要是记录一下需要注意的地方。</p>
+<h2 id="更新Cmake版本"><a href="#更新Cmake版本" class="headerlink" title="更新Cmake版本"></a>更新Cmake版本</h2><p>Cmake版本要确保在<strong>3.15.5</strong>或以上，在Matlab官方文档<a target="_blank" rel="noopener" href="https://www.mathworks.com/help/ros/gs/ros-system-requirements.html">ROS System Requirements</a>也可以查到。</p>
+<p><strong>检查你目前的Cmake版本</strong>：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cmake --version</span><br></pre></td></tr></table></figure></p>
+<p>如果版本低于3.15.5则需要更新，最常见的想法可能是直接在Linux终端用<code>sudo apt-get install cmake</code>安装，但是安装完发现是低于要求的版本，比如我用的Ubuntu 16.04，只能得到3.5.1，用<code>sudo apt-get install cmake</code>安装不了最新版本的原因是操作系统本身的repositories没有更新，16.04是Ubuntu的长期支持（LTS）版本，要在5年内保持稳定，一般只会进行关键或者安全方面的更新，不会经常主动更新最新版本的packages，通常每6个月才会更新一次。</p>
+<p><strong>推荐安装方法如下：</strong></p>
+<ul>
+<li>卸载Ubuntu提供的默认版本：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt remove --purge --auto-remove cmake</span><br></pre></td></tr></table></figure>
+或者<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt purge --auto-remove cmake</span><br></pre></td></tr></table></figure></li>
+<li>去<a target="_blank" rel="noopener" href="https://cmake.org/download/">CMake官网下载界面</a>，查看Cmake版本号，确定要安装的版本（修改version和build变量到需要的版本号，下例：3.19.1）：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">version=3.19</span><br><span class="line">build=1</span><br></pre></td></tr></table></figure></li>
+<li>先新建一个文件夹temp来存放cmake源码包，然后获取cmake源码包：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mkdir ~/temp</span><br><span class="line">cd ~/temp</span><br><span class="line">wget https://cmake.org/files/v$version/cmake-$version.$build.tar.gz</span><br></pre></td></tr></table></figure></li>
+<li>解压源码包:<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar -xzvf cmake-$version.$build.tar.gz</span><br></pre></td></tr></table></figure></li>
+<li>进入解压后的cmake目录:<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cd cmake-$version.$build/</span><br></pre></td></tr></table></figure></li>
+<li><p>安装cmake：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">./bootstrap</span><br><span class="line">make -j$(nproc)</span><br><span class="line">sudo make install</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><strong>Note</strong>: </p>
+<ul>
+<li>因为我的是多核CPU，这里使用了<code>make -j$(nproc)</code>命令进行并行编译，不过直接用<code>make</code>出问题的概率小一点，<code>nproc</code>资料可以看<a target="_blank" rel="noopener" href="https://www.howtoforge.com/linux-nproc-command/">这里</a></li>
+<li><code>make install</code>命令需要root privilege</li>
+</ul>
+</blockquote>
+</li>
+<li><p>最后，打开一个<strong>新终端</strong>，检查Cmake版本：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cmake --version</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><strong>Note</strong>: </p>
+<ul>
+<li><code>cmake --version</code>要在新终端才有用，因为用上面的方法Cmake会默认安装在<code>/usr/local/bin/</code>，而如果用开始提到的<code>sudo apt-get install cmake</code>安装，默认安装路径会是<code>/usr/bin/</code>，原因可以看StackExchange上<a target="_blank" rel="noopener" href="https://unix.stackexchange.com/questions/8656/usr-bin-vs-usr-local-bin-on-linux">这个回答</a>：<code>/usr/local/bin</code> is for normal user programs not managed by the distribution package manager, e.g. locally compiled packages. You should not install them into <code>/usr/bin</code> because future distribution upgrades may modify or delete them without warning.</li>
+</ul>
+</blockquote>
+<p>  <code>cmake --version</code>运行的结果:</p>
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cmake version 3.19.1</span><br><span class="line"></span><br><span class="line">CMake suite maintained and supported by Kitware (kitware.com/cmake).</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="确认Cmake路径"><a href="#确认Cmake路径" class="headerlink" title="确认Cmake路径"></a>确认Cmake路径</h2><p>更新好Cmake版本后，为了确保Cmake在Matlab中可用，需要保证Cmake在Matlab的环境变量中：</p>
+<ul>
+<li>首先在Linux终端中查看Cmake路径，上面已经提过Cmake会默认安装在<code>/usr/local/bin/</code>，可以在终端查看：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">which cmake</span><br></pre></td></tr></table></figure>
+运行结果：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/local/bin/cmake</span><br></pre></td></tr></table></figure></li>
+<li>然后打开<strong>Mtalab</strong>，命令行运行：<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">!which cmake</span><br></pre></td></tr></table></figure>
+运行结果应该和前面Linux终端查到的路径一致：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/local/bin/cmake</span><br></pre></td></tr></table></figure></li>
+<li>最后也在Matlab查看一下Cmake版本：<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">!cmake --version</span><br></pre></td></tr></table></figure>
+运行结果应和前面Linux终端查到版本号一致：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cmake version 3.19.1</span><br><span class="line"></span><br><span class="line">CMake suite maintained and supported by Kitware (kitware.com/cmake).</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="编译自定义message"><a href="#编译自定义message" class="headerlink" title="编译自定义message"></a>编译自定义message</h2><p>这里用Sawyer提供的ROS package<code>intera_core_msgs</code>举例，自定义的message文件就在<code>msg</code>里面。我先建了一个文件夹<code>custom_msgs</code>，然后在里面再建个文件夹<code>sawyer_custom_msg_matlab</code>包含这个package，以后有其他package也可以放到这个文件夹里面。<code>intera_core_msgs</code>package我是直接从<a target="_blank" rel="noopener" href="https://github.com/RethinkRobotics/intera_common/tree/master/intera_core_msgs">Github</a>上复制进来的，里面已经生成且配置好<code>CmakeLists.txt</code>和<code>package.xml</code>文件了，如果你想自己create ROS package也可以，注意别忘了修改这两个文件。后面的<code>matlab_msg_gen_ros1</code>文件夹就是用Matlab编译生成的，下面会演示。</p>
+<div align="center">
+  <img src="https://i.loli.net/2021/03/19/FzMK1Ti5OWZu2GU.png">
+</div>
+
+<p><br></p>
+<blockquote>
+<p><strong>Note</strong></p>
+<ul>
+<li>因为只要用到msg，我复制<code>intera_core_msgs</code>package时没有复制<code>srv</code>，需要的时候再加进去。</li>
+<li>目前不支持ROS actions，在自定义message生成期间将被忽略。</li>
+</ul>
+</blockquote>
+<p>接下来就可以在Matlab里面用<a target="_blank" rel="noopener" href="https://www.mathworks.com/help/ros/ref/rosgenmsg.html"><code>rosgenmsg</code></a>命令编译了：</p>
+<ul>
+<li>声明自定义message所在ROS package的路径：<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sawyer_folder = <span class="string">&#x27;/home/siqin/Documents/MATLAB/custom_msgs/sawyer_custom_msg_matlab&#x27;</span></span><br></pre></td></tr></table></figure>
+运行结果：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sawyer_folder =</span><br><span class="line"></span><br><span class="line">    &#x27;/home/siqin/Documents/MATLAB/custom_msgs/sawyer_custom_msg_matlab&#x27;</span><br></pre></td></tr></table></figure></li>
+<li>Call rosgenmsg:<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rosgenmsg(sawyer_folder)</span><br></pre></td></tr></table></figure>
+运行结果：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">Identifying message files in folder &#x27;/home/siqin/Documents/MATLAB/custom_msgs/sawyer_custom_msg_matlab&#x27;..Done.</span><br><span class="line">Validating message files in folder &#x27;/home/siqin/Documents/MATLAB/custom_msgs/sawyer_custom_msg_matlab&#x27;..Done.</span><br><span class="line">[1/1] Generating MATLAB interfaces for custom message packages... Done.</span><br><span class="line">Running catkin build in folder &#x27;/home/siqin/Documents/MATLAB/custom_msgs/sawyer_custom_msg_matlab/matlab_msg_gen_ros1/glnxa64&#x27;.</span><br><span class="line">Build in progress. This may take several minutes...</span><br><span class="line">Build succeeded.build log</span><br><span class="line"> </span><br><span class="line">To use the custom messages, follow these steps:</span><br><span class="line"> </span><br><span class="line">1. Add the custom message folder to the MATLAB path by executing:</span><br><span class="line"> </span><br><span class="line">addpath(&#x27;/home/siqin/Documents/MATLAB/custom_msgs/sawyer_custom_msg_matlab/matlab_msg_gen_ros1/glnxa64/install/m&#x27;)</span><br><span class="line">savepath</span><br><span class="line"> </span><br><span class="line">2. Refresh all message class definitions, which requires clearing the workspace, by executing:</span><br><span class="line"> </span><br><span class="line">clear classes</span><br><span class="line">rehash toolboxcache</span><br><span class="line"> </span><br><span class="line">3. Verify that you can use the custom messages. </span><br><span class="line">   Enter &quot;rosmsg list&quot; and ensure that the output contains the generated</span><br><span class="line">   custom message types.</span><br></pre></td></tr></table></figure></li>
+<li>然后按照上面的提示说明加入环境变量，清理一下工作空间就可以了，逐条运行：<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">addpath(<span class="string">&#x27;/home/siqin/Documents/MATLAB/custom_msgs/sawyer_custom_msg_matlab/matlab_msg_gen_ros1/glnxa64/install/m&#x27;</span>)</span><br><span class="line">savepath</span><br><span class="line">clear classes</span><br><span class="line">rehash toolboxcache</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><strong>Note</strong><br>执行<code>savepath</code>时如果提示无法修改Matlab路径文件的话，有两种解决方法：</p>
+<ul>
+<li>第一种：在当前Matlab命令窗口修改权限：<br>查看pathdef路径:<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">which pathdef</span><br></pre></td></tr></table></figure>
+运行结果：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/local/MATLAB/R2021a/toolbox/local/pathdef.m</span><br></pre></td></tr></table></figure>
+修改成所有user都有读和写的权限：<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo chmod <span class="number">666</span> /usr/local/MATLAB/R2018a/toolbox/local/pathdef.m</span><br></pre></td></tr></table></figure></li>
+<li>第二种：在Linux终端用<code>sudo matlab</code>重新打开Matlab</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+<p>最后用查看自定义的message types是否被成功生成：<br><figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rosmsg list</span><br></pre></td></tr></table></figure><br>可以发现<code>intera_core_msgs</code>package下<code>msg</code>文件夹里面的所有自定义message都已被成功生成：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">intera_core_msgs/AnalogIOState                                 </span><br><span class="line">intera_core_msgs/AnalogIOStates                                </span><br><span class="line">intera_core_msgs/AnalogOutputCommand                           </span><br><span class="line">intera_core_msgs/CameraControl                                 </span><br><span class="line">intera_core_msgs/CameraSettings                                </span><br><span class="line">intera_core_msgs/CollisionAvoidanceState                       </span><br><span class="line">intera_core_msgs/CollisionDetectionState                       </span><br><span class="line">intera_core_msgs/DigitalIOState                                </span><br><span class="line">intera_core_msgs/DigitalIOStates                               </span><br><span class="line">intera_core_msgs/DigitalOutputCommand                          </span><br><span class="line">intera_core_msgs/EndpointNamesArray                            </span><br><span class="line">intera_core_msgs/EndpointState                                 </span><br><span class="line">intera_core_msgs/EndpointStates                                </span><br><span class="line">intera_core_msgs/HeadPanCommand                                </span><br><span class="line">intera_core_msgs/HeadState                                     </span><br><span class="line">intera_core_msgs/HomingCommand                                 </span><br><span class="line">intera_core_msgs/HomingState                                   </span><br><span class="line">intera_core_msgs/IOComponentCommand                            </span><br><span class="line">intera_core_msgs/IOComponentConfiguration                      </span><br><span class="line">intera_core_msgs/IOComponentStatus                             </span><br><span class="line">intera_core_msgs/IODataStatus                                  </span><br><span class="line">intera_core_msgs/IODeviceConfiguration                         </span><br><span class="line">intera_core_msgs/IODeviceStatus                                </span><br><span class="line">intera_core_msgs/IONodeConfiguration                           </span><br><span class="line">intera_core_msgs/IONodeStatus                                  </span><br><span class="line">intera_core_msgs/IOStatus                                      </span><br><span class="line">intera_core_msgs/InteractionControlCommand                     </span><br><span class="line">intera_core_msgs/InteractionControlState                       </span><br><span class="line">intera_core_msgs/JointCommand                                  </span><br><span class="line">intera_core_msgs/JointLimits                                   </span><br><span class="line">intera_core_msgs/NavigatorState                                </span><br><span class="line">intera_core_msgs/NavigatorStates                               </span><br><span class="line">intera_core_msgs/RobotAssemblyState                            </span><br><span class="line">intera_core_msgs/SEAJointState                                 </span><br><span class="line">intera_core_msgs/URDFConfiguration  </span><br></pre></td></tr></table></figure></p>
+<h2 id="rosbag数据处理"><a href="#rosbag数据处理" class="headerlink" title="rosbag数据处理"></a>rosbag数据处理</h2><p>接下来以<code>intera_core_msgs/EndpointState</code>这个自定义message为例，用Matlab处理<code>rosbag</code>记录的机器人数据。</p>
+<ul>
+<li><strong>bag文件读取</strong>:  <figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bag = rosbag(<span class="string">&#x27;/home/siqin/catkin_ws/sawyer_end_point_state.bag&#x27;</span>);</span><br></pre></td></tr></table></figure>
+  运行后点击Workspace的bag变量，得到如下图所示信息：  <div align="center">
+  <img src="https://i.loli.net/2021/03/19/EzVb4ont9sLUau3.png">
+  </div>
+
+</li>
+</ul>
+<p><br></p>
+<ul>
+<li><p><strong>选择Topic</strong><br>  点击上图中的AvaliableTopics查看记录有哪些Topic，我这里只记录了一个<code>/robot/limb/right/endpoint_state</code>，如下图所示：</p>
+  <div align="center">
+  <img src="https://i.loli.net/2021/03/19/VIhJt6PTBy3pNGu.png">
+  </div>
+
+<p>  查看topic之后利用<code>select</code>函数选择需要处理的Topic名称:</p>
+  <figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">state_select = select(bag, <span class="string">&#x27;Time&#x27;</span>,[bag.StartTime bag.EndTime], <span class="string">&#x27;Topic&#x27;</span>, <span class="string">&#x27;/robot/limb/right/endpoint_state&#x27;</span>);</span><br></pre></td></tr></table></figure>
+<p>  从上图还可以注意到MessageType列中的<code>intera_core_msgs/EndpointState</code>正是我们之前自定义的message。</p>
+<p>  <br></p>
+</li>
+<li><p><strong>利用<code>readMessages</code>函数读取select函数选择的数据</strong></p>
+  <figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">stateMsgs = readMessages(state_select);</span><br></pre></td></tr></table></figure>
+<p>  运行后点击Workspace的stateMsgs变量，得到如下图所示信息：</p>
+  <div align="center">
+  <img src="https://i.loli.net/2021/03/19/IQ4mFVNbCzwe7Ec.png">
+  </div>
+
+<p>  <br></p>
+<p>  可以看到stateMsgs是一个1408x1的array，包含了记录的1408条message数据，点击第一条看看：</p>
+  <div align="center">
+  <img src="https://i.loli.net/2021/03/19/ksNwmJIxejdYK1M.png">
+  </div>
+
+<p>  上图显示的是定义<code>intera_core_msgs/EndpointState</code>的数据结构，我们可以先在Linux终端看一下具体内容：</p>
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rosmsg show intera_core_msgs/EndpointState</span><br></pre></td></tr></table></figure>
+<p>  运行结果：</p>
+  <div align="center">
+  <img src="https://i.loli.net/2021/03/19/HVjASKOoIXfeGu7.png">
+  </div>
+
+<p>  <br></p>
+<p>  可以看到<code>intera_core_msgs/EndpointState</code>使用了<a target="_blank" rel="noopener" href="https://wiki.ros.org/std_msgs"><code>std_msgs</code></a>和<a target="_blank" rel="noopener" href="https://wiki.ros.org/geometry_msgs"><code>geometry_msgs</code></a>两种ROS自带的message来定义，主要包含了机器人TCP的以下信息：</p>
+<blockquote>
+<p><strong>pose（位姿）：</strong></p>
+<ul>
+<li>positon 位置： x y z坐标</li>
+<li>orinentation 姿态： 用四元数表示  </li>
+</ul>
+<p><strong>twist（旋量，6维向量）：</strong></p>
+<ul>
+<li>linear： 沿轴的线速度，3维向量</li>
+<li>angular： 绕轴的角速度 3维向量</li>
+</ul>
+<p><strong>wrench（旋量，6维向量）：</strong> </p>
+<ul>
+<li>force： 力，3维向量</li>
+<li>torque： 力矩，3维向量</li>
+</ul>
+<p><strong>Note：</strong> 四元数和旋量理论后面有空单独写几篇讨论</p>
+</blockquote>
+<p>  以pose中的position为例：点击上图stateMsgs中的1x1 Pose，得到如下图所示信息：</p>
+  <div align="center">
+  <img src="https://i.loli.net/2021/03/20/2fp6LK8x91ejvQS.png">
+  </div>
+
+<p>  可以看到Pose包含了positon和orinentation信息，点开positon：</p>
+  <div align="center">
+  <img src="https://i.loli.net/2021/03/20/yqz1XCEvHu8SYAo.png">
+  </div>
+
+<p>  positon包含了机器人TCP的x y z坐标，与在终端查看的结果一致，点开X的信息：</p>
+  <div align="center">
+  <img src="https://i.loli.net/2021/03/20/lP6jR7zKhexfXWT.png">
+  </div>
+
+<p>  <br></p>
+<blockquote>
+<p><strong>Note：</strong><br>  图中每个tab的名称代表的是当前数据的读取方式，比如stateMsg{1,1}.Pose.Position.X表示的是X的读取方式。</p>
+</blockquote>
+<p>  接下来可视化数据，建立一个三维数组，将所有position数据读入数组：</p>
+  <figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">TCP_position=<span class="built_in">zeros</span>(<span class="number">1408</span>,<span class="number">3</span>);</span><br><span class="line"><span class="keyword">for</span> <span class="built_in">i</span>=<span class="number">1</span>:<span class="number">1408</span></span><br><span class="line">    TCP_position(<span class="built_in">i</span>,<span class="number">1</span>)=stateMsgs&#123;<span class="built_in">i</span>,<span class="number">1</span>&#125;.Pose.Position.X;</span><br><span class="line">    TCP_position(<span class="built_in">i</span>,<span class="number">2</span>)=stateMsgs&#123;<span class="built_in">i</span>,<span class="number">1</span>&#125;.Pose.Position.Y;</span><br><span class="line">    TCP_position(<span class="built_in">i</span>,<span class="number">3</span>)=stateMsgs&#123;<span class="built_in">i</span>,<span class="number">1</span>&#125;.Pose.Position.Z;</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<p>  绘制轨迹图：</p>
+  <figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">figure</span>;</span><br><span class="line"><span class="keyword">for</span> <span class="built_in">i</span>=<span class="number">1</span>:<span class="number">3</span></span><br><span class="line">    <span class="built_in">plot</span>((<span class="number">1</span>:<span class="number">1408</span>),TCP_position(:,<span class="built_in">i</span>),<span class="string">&#x27;LineWidth&#x27;</span>,<span class="number">1.5</span>);</span><br><span class="line">    <span class="built_in">hold</span> on;</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line">xlabel(<span class="string">&#x27;seq&#x27;</span>);</span><br><span class="line">title(<span class="string">&#x27;Position of End Point&#x27;</span>);</span><br><span class="line">grid on;</span><br><span class="line"><span class="built_in">legend</span>(<span class="string">&#x27;Position.X&#x27;</span>,<span class="string">&#x27;Position.Y&#x27;</span>,<span class="string">&#x27;Position.Z&#x27;</span>);</span><br><span class="line">  </span><br><span class="line"><span class="built_in">figure</span>;</span><br><span class="line">comet3(position(:,<span class="number">1</span>),position(:,<span class="number">2</span>),position(:,<span class="number">3</span>),<span class="number">0.5</span>);</span><br></pre></td></tr></table></figure>
+  <table>
+  <tr>
+      <td ><img src="https://i.loli.net/2021/03/20/w9gryYWqEd35F6p.png"></td>
+      <td ><img src="https://i.loli.net/2021/03/20/uZ7fEtqQAjykDcS.gif"></td>
+  </tr>
+  </table>
+
+<p>  完整Matlab代码：</p>
+  <figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line">clear all;</span><br><span class="line">close all;</span><br><span class="line">clc;</span><br><span class="line"></span><br><span class="line">bag = rosbag(<span class="string">&#x27;/home/siqin/catkin_ws/sawyer_end_point_state.bag&#x27;</span>);</span><br><span class="line"></span><br><span class="line">state_select = select(bag, <span class="string">&#x27;Time&#x27;</span>,[bag.StartTime bag.EndTime], <span class="string">&#x27;Topic&#x27;</span>, <span class="string">&#x27;/robot/limb/right/endpoint_state&#x27;</span>);<span class="comment">% &#123;&#x27;intera_core_msgs/EndpointState&#x27;&#125;</span></span><br><span class="line">stateMsgs = readMessages(state_select);</span><br><span class="line"></span><br><span class="line"><span class="comment">% rosmsg show intera_core_msgs/EndpointState</span></span><br><span class="line"><span class="comment">% std_msgs/Header header</span></span><br><span class="line"><span class="comment">%   uint32 seq</span></span><br><span class="line"><span class="comment">%   time stamp</span></span><br><span class="line"><span class="comment">%   string frame_id</span></span><br><span class="line"><span class="comment">% geometry_msgs/Pose pose</span></span><br><span class="line"><span class="comment">%   geometry_msgs/Point position</span></span><br><span class="line"><span class="comment">%     float64 x</span></span><br><span class="line"><span class="comment">%     float64 y</span></span><br><span class="line"><span class="comment">%     float64 z</span></span><br><span class="line"><span class="comment">%   geometry_msgs/Quaternion orientation</span></span><br><span class="line"><span class="comment">%     float64 x</span></span><br><span class="line"><span class="comment">%     float64 y</span></span><br><span class="line"><span class="comment">%     float64 z</span></span><br><span class="line"><span class="comment">%     float64 w</span></span><br><span class="line"><span class="comment">% geometry_msgs/Twist twist</span></span><br><span class="line"><span class="comment">%   geometry_msgs/Vector3 linear</span></span><br><span class="line"><span class="comment">%     float64 x</span></span><br><span class="line"><span class="comment">%     float64 y</span></span><br><span class="line"><span class="comment">%     float64 z</span></span><br><span class="line"><span class="comment">%   geometry_msgs/Vector3 angular</span></span><br><span class="line"><span class="comment">%     float64 x</span></span><br><span class="line"><span class="comment">%     float64 y</span></span><br><span class="line"><span class="comment">%     float64 z</span></span><br><span class="line"><span class="comment">% geometry_msgs/Wrench wrench</span></span><br><span class="line"><span class="comment">%   geometry_msgs/Vector3 force</span></span><br><span class="line"><span class="comment">%     float64 x</span></span><br><span class="line"><span class="comment">%     float64 y</span></span><br><span class="line"><span class="comment">%     float64 z</span></span><br><span class="line"><span class="comment">%   geometry_msgs/Vector3 torque</span></span><br><span class="line"><span class="comment">%     float64 x</span></span><br><span class="line"><span class="comment">%     float64 y</span></span><br><span class="line"><span class="comment">%     float64 z</span></span><br><span class="line"><span class="comment">% bool valid</span></span><br><span class="line"></span><br><span class="line">TCP_position=<span class="built_in">zeros</span>(<span class="number">1408</span>,<span class="number">3</span>);</span><br><span class="line"><span class="keyword">for</span> <span class="built_in">i</span>=<span class="number">1</span>:<span class="number">1408</span></span><br><span class="line">    TCP_position(<span class="built_in">i</span>,<span class="number">1</span>)=stateMsgs&#123;<span class="built_in">i</span>,<span class="number">1</span>&#125;.Pose.Position.X;</span><br><span class="line">    TCP_position(<span class="built_in">i</span>,<span class="number">2</span>)=stateMsgs&#123;<span class="built_in">i</span>,<span class="number">1</span>&#125;.Pose.Position.Y;</span><br><span class="line">    TCP_position(<span class="built_in">i</span>,<span class="number">3</span>)=stateMsgs&#123;<span class="built_in">i</span>,<span class="number">1</span>&#125;.Pose.Position.Z;</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">figure</span>;</span><br><span class="line"><span class="keyword">for</span> <span class="built_in">i</span>=<span class="number">1</span>:<span class="number">3</span></span><br><span class="line">    <span class="built_in">plot</span>((<span class="number">1</span>:<span class="number">1408</span>),TCP_position(:,<span class="built_in">i</span>),<span class="string">&#x27;LineWidth&#x27;</span>,<span class="number">1.5</span>);</span><br><span class="line">    <span class="built_in">hold</span> on;</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line">xlabel(<span class="string">&#x27;seq&#x27;</span>);</span><br><span class="line">title(<span class="string">&#x27;Position of End Point&#x27;</span>);</span><br><span class="line">grid on;</span><br><span class="line"><span class="built_in">legend</span>(<span class="string">&#x27;Position.X&#x27;</span>,<span class="string">&#x27;Position.Y&#x27;</span>,<span class="string">&#x27;Position.Z&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">figure</span>;</span><br><span class="line">comet3(TCP_position(:,<span class="number">1</span>),TCP_position(:,<span class="number">2</span>),TCP_position(:,<span class="number">3</span>),<span class="number">0.5</span>);</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p>[1] <a target="_blank" rel="noopener" href="https://www.mathworks.com/help/ros/ug/ros-custom-message-support.html">https://www.mathworks.com/help/ros/ug/ros-custom-message-support.html</a><br>[2] <a target="_blank" rel="noopener" href="https://askubuntu.com/questions/355565/how-do-i-install-the-latest-version-of-cmake-from-the-command-line">https://askubuntu.com/questions/355565/how-do-i-install-the-latest-version-of-cmake-from-the-command-line</a><br>[3] <a target="_blank" rel="noopener" href="https://www.mathworks.com/matlabcentral/answers/623103-matlab-2020b-rosgenmsg-can-t-find-cmake">https://www.mathworks.com/matlabcentral/answers/623103-matlab-2020b-rosgenmsg-can-t-find-cmake</a><br>[4] <a target="_blank" rel="noopener" href="https://blog.csdn.net/yaked/article/details/97682872">https://blog.csdn.net/yaked/article/details/97682872</a><br>[5] <a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_40712763/article/details/78909608">https://blog.csdn.net/weixin_40712763/article/details/78909608</a><br>[6] <a target="_blank" rel="noopener" href="https://blog.csdn.net/u012424737/article/details/106766307">https://blog.csdn.net/u012424737/article/details/106766307</a></p>
+
+      
+    </div>
+    <div class="article-footer">
+      <!-- 
+<blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="https://siqindong.com/2021/03/16/%E5%9C%A8Matlab%E4%B8%AD%E8%AF%BB%E5%8F%96%E5%B9%B6%E5%88%86%E6%9E%90rosbag%E6%95%B0%E6%8D%AE/" title="在Matlab中读取并分析rosbag数据" target="_blank" rel="external">https://siqindong.com/2021/03/16/在Matlab中读取并分析rosbag数据/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+-->
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/siqindong" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/moon.png" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/siqindong" target="_blank"><span class="text-dark">Siqin Dong</span><small class="ml-1x">Student</small></a></h3>
+        <div>Mechanical Engineering</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      </div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2021/10/20/Fourier-Transform/" title="Fourier Transform"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Next Post</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2021/03/16/Read-and-analyze-rosbag-data-in-Matlab/" title="Read and analyze rosbag data in Matlab"><span>Previous Post&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+    <div class="share-component" data-sites="wechat,facebook,twitter" data-mobile-sites="wechat,facebook,twitter"></div>
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/siqindong" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="https://www.linkedin.com/in/siqin-dong-3307a4138" target="_blank" title="Linkedin" data-toggle=tooltip data-placement=top><i class="icon icon-linkedin"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        &copy; 2022 Siqin Dong
+        
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+
+
+   
+    
+    <script defer>
+    var disqus_config = function () {
+        
+            this.page.url = 'https://siqindong.com/2021/03/16/%E5%9C%A8Matlab%E4%B8%AD%E8%AF%BB%E5%8F%96%E5%B9%B6%E5%88%86%E6%9E%90rosbag%E6%95%B0%E6%8D%AE/';
+        
+        this.page.identifier = '在Matlab中读取并分析rosbag数据';
+    };
+    (function() { 
+        var d = document, s = d.createElement('script');  
+        s.src = '//' + 'siqindong' + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+
+
+
+
+  <script src="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.3.5/dist/jquery.fancybox.min.js"></script>
+  <script>
+  //利用 FancyBox 实现点击图片放大
+  $(document).ready(function() {
+    $('article img').not('[hidden]').not('.panel-body img').each(function() {
+      var $image = $(this);
+      var imageCaption = $image.attr('alt');
+      var $imageWrapLink = $image.parent('a');
+      if ($imageWrapLink.length < 1) {
+        var src = this.getAttribute('src');
+        var idx = src.lastIndexOf('?');
+        if (idx != -1) {
+          src = src.substring(0, idx);
+        }
+        $imageWrapLink = $image.wrap('<a href="' + src + '"></a>').parent('a');
+      }
+      $imageWrapLink.attr('data-fancybox', 'images');
+      if (imageCaption) {
+        $imageWrapLink.attr('data-caption', imageCaption);
+      }
+    });
+    $().fancybox({
+      selector: '[data-fancybox="images"]',
+      hash: false,
+      loop: false,
+    });
+  });
+  </script>
+
+
+
+
+
+
+<div id="go-top"></div>
+
+<style type="text/css">
+#go-top {
+ width:40px;height:36px;
+ background-color:#777;
+ position:relative;
+ border-radius:2px;
+ position:fixed;right:10px;bottom:60px;
+ cursor:pointer;display:none;
+}
+#go-top:after {
+ content:" ";
+ position:absolute;left:14px;top:14px;
+ border-top:2px solid #fff;border-right:2px solid #fff;
+ width:12px;height:12px;
+ transform:rotate(-45deg);
+}
+#go-top:hover {
+ background-color:#333;
+}
+</style>
+
+<script>
+$(function () {
+  var top=$("#go-top");
+  $(window).scroll(function () {
+    ($(window).scrollTop() > 300) ? top.show(300) : top.hide(200);
+    $("#go-top").click(function () {
+      $('body,html').animate({scrollTop:0});
+      return false();
+    })
+  });
+});
+</script>
+  
+  <style>
+    .copy-btn {
+      display: inline-block;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 20px;
+      color: #333;
+      white-space: nowrap;
+      vertical-align: middle;
+      cursor: pointer;
+      background-color: #eee;
+      background-image: linear-gradient(#fcfcfc, #eee);
+      border: 1px solid #d5d5d5;
+      border-radius: 3px;
+      user-select: none;
+      outline: 0;
+    }
+
+    .highlight-wrap .copy-btn {
+      transition: opacity .3s ease-in-out;
+      opacity: 0;
+      padding: 2px 6px;
+      position: absolute;
+      right: 3px;
+      top: 3px;
+      z-index: 2;
+    }
+
+    .highlight-wrap:hover .copy-btn,
+        .highlight-wrap .copy-btn:focus {
+      opacity: 1
+    }
+
+    .highlight-wrap {
+      position: relative;
+    }
+  </style>
+
+  <script>
+    addLoadEvent(()=>{
+      $('.highlight').each(function (i, e) {
+        var $wrap = $('<div>').addClass('highlight-wrap')
+        $(e).after($wrap)
+        $wrap.append($('<button>').addClass('copy-btn').append('Copy').on('click', function (e) {
+          var code = $(this).parent().find(".code")[0].innerText
+          
+          var ta = document.createElement('textarea')
+          document.body.appendChild(ta)
+          ta.style.position = 'absolute'
+          ta.style.top = '0px'
+          ta.style.left = '0px'
+          ta.value = code
+          ta.select()
+          ta.focus()
+          var result = document.execCommand('copy')
+          document.body.removeChild(ta)
+          
+            if(result)$(this).text('Copied')
+            else $(this).text('Copy failed')
+          
+          $(this).blur()
+        })).on('mouseleave', function (e) {
+          var $b = $(this).find('.copy-btn')
+          setTimeout(function () {
+            $b.text('Copy')
+          }, 300)
+        }).append(e)
+      })
+    })
+  </script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
+</html>
