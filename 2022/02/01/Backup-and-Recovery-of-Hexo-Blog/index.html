@@ -17,18 +17,21 @@
   <meta http-equiv="window-target" content="_top" />
   
   
-  <title>Books | Siqin Dong</title>
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Books">
-<meta property="og:url" content="https://siqindong.com/books/index.html">
+  <title>Backup and Recovery of Hexo Blog | Siqin Dong</title>
+  <meta name="description" content="参考这篇文章。 前提已经初始化好了自己想要备份的博客。Git、GitHub环境已准备好。 备份博客新建仓库新建一个仓库，自己命名，比如我的是hexo-back-up，勾选README 获取 .git文件夹原始的博客文件夹只有.deploy_git，是没有.git文件夹的，于是我们先去桌面或者哪里随便一个地方，把刚刚的hexo-back-up给clone下来。然后剪切出里面的.git文件夹，复制到现">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Backup and Recovery of Hexo Blog">
+<meta property="og:url" content="https://siqindong.com/2022/02/01/Backup-and-Recovery-of-Hexo-Blog/index.html">
 <meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="参考这篇文章。 前提已经初始化好了自己想要备份的博客。Git、GitHub环境已准备好。 备份博客新建仓库新建一个仓库，自己命名，比如我的是hexo-back-up，勾选README 获取 .git文件夹原始的博客文件夹只有.deploy_git，是没有.git文件夹的，于是我们先去桌面或者哪里随便一个地方，把刚刚的hexo-back-up给clone下来。然后剪切出里面的.git文件夹，复制到现">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2022-02-01T20:21:57.236Z">
-<meta property="article:modified_time" content="2022-02-01T20:21:57.236Z">
+<meta property="article:published_time" content="2022-02-01T21:52:33.000Z">
+<meta property="article:modified_time" content="2022-02-01T22:23:29.786Z">
 <meta property="article:author" content="Siqin Dong">
+<meta property="article:tag" content="Hexo">
 <meta name="twitter:card" content="summary">
   <!-- Canonical links -->
-  <link rel="canonical" href="https://siqindong.com/books/index.html">
+  <link rel="canonical" href="https://siqindong.com/2022/02/01/Backup-and-Recovery-of-Hexo-Blog/index.html">
   
     <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
   
@@ -36,6 +39,8 @@
   
 <link rel="stylesheet" href="/css/style.css">
 
+  
+    <link href="//cdn.jsdelivr.net/npm/katex@0.9.0/dist/katex.min.css" rel="stylesheet">
   
   
   
@@ -45,7 +50,7 @@
 <meta name="generator" content="Hexo 6.0.0"></head>
 
 
-<body class="main-center no-sidebar" itemscope itemtype="http://schema.org/WebPage">
+<body class="main-center" itemscope itemtype="http://schema.org/WebPage">
   <header class="header" itemscope itemtype="http://schema.org/WPHeader">
   <div class="slimContent">
     <div class="navbar-header">
@@ -326,41 +331,147 @@
 </aside>
 
   
-  <main class="main" role="main">
-  <article class="article article-links article-type-list" itemscope="">
-  <header class="article-header">
-    <h1 itemprop="title">Books</h1>
-    <p class="text-muted">Personal collection of books recommended to everyone <a href="https://www.douban.com/people//" target="_blank">[Douban]</a></p>
-    <nav role="navigation" id="nav-main" class="okayNav">
-      <ul id="tabs">
-        <li><a id="reading-tab" href="javascript:show('reading')" rel="external">在读<span id="reading-total"></span></a></li>
-        <li><a id="wish-tab" href="javascript:show('wish')" rel="external">想读<span id="wish-total"></span></a></li>
-        <li><a id="read-tab" href="javascript:show('read')" rel="external">已读<span id="read-total"></span></a></li>
-      </ul>
-    </nav>
-  </header>
-  <div class="article-body">
-    <div id="loading">
-      <p>正在加载...</p>
-    </div>
-    <div id="douban">
-      <div id="collections">
-        <div id="reading" class="row hide">
-        </div>
-        <div class="clearfix"></div>
-        <div id="wish" class="row hide">
-        </div>
-        <div class="clearfix"></div>
-        <div id="read" class="row hide">
-        </div>
-        <div class="clearfix"></div>
-      </div>
-    </div>
-  </div>
-</article>
-
+  
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-Backup-and-Recovery-of-Hexo-Blog" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Backup and Recovery of Hexo Blog
+    </h1>
   
 
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2022/02/01/Backup-and-Recovery-of-Hexo-Blog/" class="article-date">
+	  <time datetime="2022-02-01T21:52:33.000Z" itemprop="datePublished">02-01-2022</time>
+	</a>
+</span>
+        
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link-link" href="/tags/Hexo/" rel="tag">Hexo</a>
+  </span>
+
+
+        
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2022/02/01/Backup-and-Recovery-of-Hexo-Blog/#comments" class="article-comment-link">Comments</a></span>
+        
+	
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">Words: 570(words)</span>
+	
+	
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">Reading time: 2(mins)</span>
+	
+
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <p>参考<a target="_blank" rel="noopener" href="https://blog.quickso.cn/2021/02/20/Hexo%E5%8D%9A%E5%AE%A2%E7%9A%84%E5%A4%87%E4%BB%BD%E4%B8%8E%E6%81%A2%E5%A4%8D/">这篇文章</a>。</p>
+<h2 id="前提"><a href="#前提" class="headerlink" title="前提"></a>前提</h2><p>已经初始化好了自己想要备份的博客。Git、GitHub环境已准备好。</p>
+<h2 id="备份博客"><a href="#备份博客" class="headerlink" title="备份博客"></a>备份博客</h2><p><strong>新建仓库</strong><br>新建一个仓库，自己命名，比如我的是hexo-back-up，勾选README</p>
+<p><strong>获取 .git文件夹</strong><br>原始的博客文件夹只有.deploy_git，是没有.git文件夹的，于是我们先去桌面或者哪里随便一个地方，把刚刚的hexo-back-up给clone下来。然后剪切出里面的.git文件夹，复制到现在的博客文件夹中</p>
+<p><strong>创建.gitignore</strong><br>用来在上传时候忽略一些文件，即不上传.gitignore中忽略的文件。有就就不用管了，没有的话自己手动创建创建.gitignore。</p>
+<p>注意，如果你之前克隆过theme中的主题文件，那么应该把主题文件中的.git文件夹删掉，因为git不能嵌套上传，最好是显示隐藏文件，检查一下有没有，否则上传的时候会出错，导致你的主题文件无法上传，这样你的配置在别的电脑上就用不了了</p>
+<p><strong>备份</strong><br>通过如下命令将本地文件备份到Github上。<br>在hexo博客的根目录下执行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git add .</span><br><span class="line">git commit -m &quot;back up&quot;</span><br><span class="line">git push -u origin main</span><br></pre></td></tr></table></figure>
+<p>这样就备份完博客了且在Github上能看到，其中node_modules、public、db.json已经被忽略掉了，没有关系，不需要上传的，因为在别的电脑上需要重新输入命令安装 。</p>
+<h2 id="恢复博客"><a href="#恢复博客" class="headerlink" title="恢复博客"></a>恢复博客</h2><p>先把本地Hexo博客基础环境搭好：比如安装git、nodejs、hexo…</p>
+<p><strong>克隆源文件到本地</strong></p>
+<p>如果在新电脑或者重装系统后恢复的话可能需要重新生成SSH密钥，并更新github密钥配置。</p>
+<p><strong>恢复博客</strong><br>在clone下来的那个文件夹里面执行<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">npm install hexo-cli</span><br><span class="line">npm install</span><br><span class="line">npm install hexo-deployer-git</span><br></pre></td></tr></table></figure><br>在此不需要执行hexo init这条指令，因为不是从零搭建起新博客。<br>然后就完成了，你如果想也可以<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">hexo clean</span><br><span class="line">hexo g</span><br><span class="line">hexo d</span><br></pre></td></tr></table></figure></p>
+<p>如果想用Github Action自动部署博客的话参考<a href="https://siqindong.com/2022/02/01/Deploy-Hexo-blog-automatically-by-Github-Action/">这篇博客</a></p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p><a target="_blank" rel="noopener" href="https://blog.quickso.cn/2021/02/20/Hexo%E5%8D%9A%E5%AE%A2%E7%9A%84%E5%A4%87%E4%BB%BD%E4%B8%8E%E6%81%A2%E5%A4%8D/">https://blog.quickso.cn/2021/02/20/Hexo%E5%8D%9A%E5%AE%A2%E7%9A%84%E5%A4%87%E4%BB%BD%E4%B8%8E%E6%81%A2%E5%A4%8D/</a></p>
+
+      
+    </div>
+    <div class="article-footer">
+      <!-- 
+<blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="https://siqindong.com/2022/02/01/Backup-and-Recovery-of-Hexo-Blog/" title="Backup and Recovery of Hexo Blog" target="_blank" rel="external">https://siqindong.com/2022/02/01/Backup-and-Recovery-of-Hexo-Blog/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+-->
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/siqindong" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/moon.png" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/siqindong" target="_blank"><span class="text-dark">Siqin Dong</span><small class="ml-1x">Student</small></a></h3>
+        <div>Mechanical Engineering</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      </div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2022/02/01/Build-a-PicBed-using-GitHub-and-jsdelivr/" title="Build a PicBed using GitHub and jsdelivr"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Next Post</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2022/02/01/Deploy-Hexo-blog-automatically-by-Github-Action/" title="Deploy Hexo blog automatically by Github Action"><span>Previous Post&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+    <div class="share-component" data-sites="wechat,facebook,twitter" data-mobile-sites="wechat,facebook,twitter"></div>
+    
+  </div>
+  </div>
+</nav>
+  
 
 
 </main>
@@ -416,155 +527,28 @@ window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
 
 
 
-   <script>
-function show(id) {
-  document.getElementById('reading').classList.remove('active');
-  document.getElementById('read').classList.remove('active');
-  document.getElementById('wish').classList.remove('active');
-  document.getElementById('reading').classList.add('hide');
-  document.getElementById('read').classList.add('hide');
-  document.getElementById('wish').classList.add('hide');
 
-  var ele = document.getElementById(id);
-  ele.classList.remove('hide');
-  ele.classList.add('active');
+   
 
-  document.getElementById('reading-tab').classList.remove('active');
-  document.getElementById('read-tab').classList.remove('active');
-  document.getElementById('wish-tab').classList.remove('active');
-  document.getElementById(id + '-tab').classList.add('active');
-};
 
-(function() {
-  var read = [];
-  var wish = [];
-  var reading = [];
 
-  // XHR 获取豆瓣书单数据，数据格式json
-  // function loadDoubanCollections() {
-  //   var xhr = new XMLHttpRequest();
-  //   // https://api.douban.com/v2/book/user/:name/collections
-  //   xhr.open('GET', 'http://7b1fa0.com1.z0.glb.clouddn.com/douban-20170429-1.json', true);
 
-  //   xhr.onload = function() {
-  //     // console.log(this);
-  //     if (this.status >= 200 && this.status < 300) {
-  //       var res = JSON.parse(this.response);
-  //       searchData = res;
-  //       onLoadDouban(searchData);
-  //     } else {
-  //       console.error(this.statusText);
-  //     }
-  //   };
-
-  //   xhr.onerror = function() {
-  //     console.error(this.statusText);
-  //   };
-
-  //   xhr.send();
-  // }
-  
-  // Ajax 获取豆瓣书单数据，数据格式json
-  function loadDoubanCollections() {
-    var _this = this;
-    // https://api.douban.com/v2/book/user/:name/collections?start=0&count=100
-    var url = "https://api.douban.com/v2/book/user//collections"
-    $.ajax({
-      url: url,
-      type: 'GET',
-      data: {
-        start:0, // 从哪一条记录开始
-        count:100, // 获取豆瓣书单数据条数
-        apikey:'' // 豆瓣apikey
-      },
-      dataType: 'JSONP', //here
-      success: function(data) {
-        // console.log(data);
-        onLoadDouban(data);
-      }
-    });
-  }
-
-  function onLoadDouban(data) {
-    if (data['count'] > 0) {
-      for (var i = 0; i < data['collections'].length; ++i) {
-        resolveBook(data['collections'][i]);
-      }
-    }
-    render();
-  }
-
-  function resolveBook(book) {
-    if (book['status'] == 'read') {
-      read.push(book);
-    }
-    if (book['status'] == 'wish') {
-      wish.push(book);
-    }
-    if (book['status'] == 'reading') {
-      reading.push(book);
-    }
-  }
-
-  function render() {
-    renderList(read, 'read');
-    renderList(wish, 'wish');
-    renderList(reading, 'reading');
-
-    document.getElementById('reading-total').innerHTML = '(' + reading.length + ')';
-    document.getElementById('read-total').innerHTML = '(' + read.length + ')';
-    document.getElementById('wish-total').innerHTML = '(' + wish.length + ')';
-
-    show('reading');
-    document.getElementById('loading').classList.add('hide');
-  }
-
-  function renderList(list, id) {
-    for (var i = 0; i < list.length; ++i) {
-      var h = renderBook(list[i]);
-      if (i > 0 && i % 4 == 3) {
-        h += '<div class="clearfix"></div>';
-      }
-      document.getElementById(id).innerHTML = document.getElementById(id).innerHTML + h;
-    }
-  }
-
-  function renderBook(book) {
-    var html = '<div class="col-sm-6 col-md-6"><div class="panel panel-default hover-grow"><div class="panel-body">'
-      + '<div class="media media-middle book book-' + book['status'] + '" itemscope itemtype="http://schema.org/Book">' 
-      + '<div class="media-left"><a class="media-middle" target="_blank" href="' + book.book.alt + '" rel="external nofollow noopener noreferrer"><img class="media-object" src="' + book.book.image + '" itemprop="image"/></a></div><div class="media-body">' 
-      + '<h3 class="media-heading" itemprop="name"><a target="_blank" href="' + book.book.alt + '" rel="external nofollow noopener noreferrer">' + book.book.title + '</a></h3>' 
-      + '<p class="meta text-nowrap-1x"><small itemprop="author">' + book.book.author[0] + '</small> / <small itemprop="datePublished">' + book.book.pubdate + '</small> / <small itemprop="ratingValue">' + book.book.rating.average + '分</small></p>' 
-      + '<p class="meta text-nowrap-1x">' + book.updated.substring(0, 10) + resolveRating(book.rating) + resolveTags(book.tags) + '</p>' 
-      + '<div class="comments text-muted text-nowrap-3x" itemprop="comment">' + (book.comment ? book.comment : '') + '</div>' 
-      + '</div>' + '</div>' + '</div>' + '</div>' + '</div>';
-    return html;
-  }
-
-  function resolveRating(rating) {
-    if (rating && rating.value) {
-      return ' / ' + rating.value + '星';
-    }
-    return '';
-  }
-
-  function resolveTags(tags) {
-    if (tags && tags.length > 0) {
-      var html = ' / ';
-      for (var i = 0; i < tags.length; ++i) {
-        html += tags[i] + ' ';
-      }
-      return html;
-    }
-    return '';
-  }
-
-  setTimeout(function() {
-    loadDoubanCollections();
-  }, 0)
-})()
+   
+    
+    <script defer>
+    var disqus_config = function () {
+        
+            this.page.url = 'https://siqindong.com/2022/02/01/Backup-and-Recovery-of-Hexo-Blog/';
+        
+        this.page.identifier = 'Backup-and-Recovery-of-Hexo-Blog';
+    };
+    (function() { 
+        var d = document, s = d.createElement('script');  
+        s.src = '//' + 'siqindong' + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
 </script>
-
 
 
 
